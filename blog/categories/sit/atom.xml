@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: sit | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/sit/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/sit/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[MMA CTF: Rock Paper SHELLCODE]]></title>
-    <link href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
+    <link href="http://quantumvm.github.io//github/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
     <updated>2015-09-08T14:32:30-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
+    <id>http://quantumvm.github.io//github/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
     <content type="html"><![CDATA[<p>MMA CTF: Rock Paper SHELLCODE</p>
 
 <p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
@@ -62,9 +62,9 @@ print junk+rbp+rip,
   
   <entry>
     <title type="html"><![CDATA[Binary Patching]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/09/14/binary-patching/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/09/14/binary-patching/"/>
     <updated>2014-09-14T01:53:36-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/09/14/binary-patching</id>
+    <id>http://quantumvm.github.io//github/blog/2014/09/14/binary-patching</id>
     <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/juEDAMjNvOE" frameborder="0" allowfullscreen></iframe>
 </center>
 
@@ -79,9 +79,9 @@ print junk+rbp+rip,
   
   <entry>
     <title type="html"><![CDATA[First SIT Meeting 2014]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/09/14/first-sit-meeting/"/>
     <updated>2014-09-14T01:14:27-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting</id>
+    <id>http://quantumvm.github.io//github/blog/2014/09/14/first-sit-meeting</id>
     <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/s3k5UXFt4qw" frameborder="0" allowfullscreen></iframe>
 </center>
 

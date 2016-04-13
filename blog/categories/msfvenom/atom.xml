@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: msfvenom | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/msfvenom/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/msfvenom/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Improving Msfvenom Part--1]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/10/28/improving-msfvenom-project/"/>
     <updated>2014-10-28T01:55:16-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project</id>
+    <id>http://quantumvm.github.io//github/blog/2014/10/28/improving-msfvenom-project</id>
     <content type="html"><![CDATA[<p>This is  a progress/update on one of my current projects: improving the metasploit framework. In this part I am only doing reverse engineering/analysis of how msfvenom currently backdoors ELF files. This is all in an effort to add the “-k” functionality to ELF executables, the windows equivalent of an exe.</p>
 
 <p>The -k flag is used by msfvenom to start a new thread for a payload that has been backdoored in an executable. This allows an attacker to preserve the original functionality of an executable while still executing the generated shellcode. This can come in quite handing for evading anti-virus. Unfortunately this feature is only available on 32-bit windows executables and msfvenom won&rsquo;t throw an error when you use this flag on a wrong file format.</p>

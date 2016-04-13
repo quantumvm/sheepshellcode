@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: tutorials | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/tutorials/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/tutorials/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Writing Buffer Overflow Exploits With ASLR]]></title>
-    <link href="http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/"/>
+    <link href="http://quantumvm.github.io//github/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/"/>
     <updated>2015-03-24T18:33:43-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr</id>
+    <id>http://quantumvm.github.io//github/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr</id>
     <content type="html"><![CDATA[<p>Today I decided to refresh my memory of buffer overflows by writing a short vulnerable program and then an exploit for it. To make things more interesting, I decided to challenge myself to write an exploit for the program that would work with ASLR enabled.</p>
 
 <p><img class="center" src="/images/buffer-overflow-aslr/randomization-proc-sys-kernel.png"></p>

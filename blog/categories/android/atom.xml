@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: android | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/android/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/android/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Nmap on Android]]></title>
-    <link href="http://sheepshellcode.com/blog/2014/10/11/nmap-on-android/"/>
+    <link href="http://quantumvm.github.io//github/blog/2014/10/11/nmap-on-android/"/>
     <updated>2014-10-11T20:00:56-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2014/10/11/nmap-on-android</id>
+    <id>http://quantumvm.github.io//github/blog/2014/10/11/nmap-on-android</id>
     <content type="html"><![CDATA[<p>This weekend, I got my first smart phone an Android LGLS740. What I love about android is that it is a Linux based operating system at its core. The very first application I went to download on it was Terminal Emulator for Android (<a href="https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en">https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en</a>). This effectively makes the phone a low spec computer you can carry in your pocket.</p>
 
 <p>Although most of applications for android are written in java, It seemed logical that an ELF file should still be able to run so long as I compiled it for the right processor. I explored android&rsquo;s settings for cpu info but eventually gave up. I was a bit surprised I wasn&rsquo;t able to find this information under the &ldquo;Hardware information&rdquo; setting. I figured it would be much faster to just cat the cpuinfo file in the file system using the terminal app.</p>

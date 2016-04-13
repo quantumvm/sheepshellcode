@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: ctf | Sheep Shellcode]]></title>
-  <link href="http://sheepshellcode.com/blog/categories/ctf/atom.xml" rel="self"/>
-  <link href="http://sheepshellcode.com/"/>
-  <updated>2016-04-12T20:58:40-04:00</updated>
-  <id>http://sheepshellcode.com/</id>
+  <link href="http://quantumvm.github.io//github/blog/categories/ctf/atom.xml" rel="self"/>
+  <link href="http://quantumvm.github.io//github/"/>
+  <updated>2016-04-12T21:04:45-04:00</updated>
+  <id>http://quantumvm.github.io//github/</id>
   <author>
     <name><![CDATA[Vincent Moscatello]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[How to Kill a Dragon]]></title>
-    <link href="http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon/"/>
+    <link href="http://quantumvm.github.io//github/blog/2015/10/12/how-to-kill-a-dragon/"/>
     <updated>2015-10-12T16:08:17-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon</id>
+    <id>http://quantumvm.github.io//github/blog/2015/10/12/how-to-kill-a-dragon</id>
     <content type="html"><![CDATA[<p><img class="center" src="/images/dragon/dragon.png" width="459" height="437"></p>
 
 <p>Dragon is a 75 point pwnable from pwnable.kr. That being said, if you are afraid of spoilers, DON’T continue! Try out the challenge for yourself! The binary is a 32 bit dynamically linked elf that still has most of its symbols left in tack. It takes a bit of reverse engineering to actually figure out how to exploit it though.</p>
@@ -113,9 +113,9 @@ print "cat flag"
   
   <entry>
     <title type="html"><![CDATA[MMA CTF: Rock Paper SHELLCODE]]></title>
-    <link href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
+    <link href="http://quantumvm.github.io//github/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
     <updated>2015-09-08T14:32:30-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
+    <id>http://quantumvm.github.io//github/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
     <content type="html"><![CDATA[<p>MMA CTF: Rock Paper SHELLCODE</p>
 
 <p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
@@ -160,9 +160,9 @@ print junk+rbp+rip,
   
   <entry>
     <title type="html"><![CDATA[A Tiny Easy CTF Challenge]]></title>
-    <link href="http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge/"/>
+    <link href="http://quantumvm.github.io//github/blog/2015/09/02/a-tiny-easy-ctf-challenge/"/>
     <updated>2015-09-02T11:40:10-04:00</updated>
-    <id>http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge</id>
+    <id>http://quantumvm.github.io//github/blog/2015/09/02/a-tiny-easy-ctf-challenge</id>
     <content type="html"><![CDATA[<p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
 
 <p>The challenge starts by prompting you to ssh into a box running Ubuntu. I tried cat-ing /proc/sys/kernel/randomize_va_space and it looks like they left ASLR enabled. Excellent.</p>
