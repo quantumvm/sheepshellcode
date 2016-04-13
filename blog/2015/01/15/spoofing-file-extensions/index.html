@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Spoofing File Extensions - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="After running a few malware samples in a virtual machine, it becomes obvious that malware developers thrive on social engineering. Why bother waiting &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2015/01/15/spoofing-file-extensions/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">Spoofing File Extensions</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-01-15T13:06:02-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>After running a few malware samples in a virtual machine, it becomes obvious that malware developers thrive on social engineering. Why bother waiting for a zero day when you can just attack human error? Here are a few social engineering attempts I’ve seen so far:</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/fakefiletypes.png"></p>
+
+<p>I would say the most common “spoofed” file type is probably a pdf. So it’s a good idea to think twice before visiting a dodgy site to save money on textbooks.</p>
+
+<p>More advanced users know that to run an exe in Windows its necessary to use the file extension “.exe”. If a malware developer wanted to distribute a file that was still executable but looked like a pdf it would still have to be called something like “myevilfile.pdf.exe&#8221;. The alternative of course is to use a pdf viewer exploit but not every system will be running a vulnerable pdf viewer. File extensions are hidden by default on windows so leaving the file name as &ldquo;.exe&rdquo; can still be effective.</p>
+
+<p>But what if a user DOES have file extensions enabled? An “.exe” extension for a pdf may immediately throw some red flags. A malware developer could use some clever Unicode characters to flip the file extension name. This trick was originally described by Lyle Frank from the Avast blog: <a href="https://blog.avast.com/2011/09/07/unpacking-the-unitrix-malware/">https://blog.avast.com/2011/09/07/unpacking-the-unitrix-malware/</a></p>
+
+<p>The magic happens with the Unicode character U+202E called “Right-To-Left-Override” what this character does is flip all characters to the right of it over a central axis. For example a file called “eci.exe” that has the Unicode character U+202E inserted in front of it will appear as “exe.ice” the file name is flipped over the dot.</p>
+
+<p>The trick is pretty simple for a malware developer to deploy. Just open up All Programs-Accessories-System tools-Character Map then copy the character and paste it into the file name after right clicking.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/Righttoleftoverride.png"></p>
+
+<p>In the picture bellow the file was originally named “TextFilfdp.exe” After inserting the Unicode character after the letter “L” the file name appears as “TextFilexe.pdf”</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/NotAPDF.png"></p>
+
+<p>When double clicked, the file produced the ouput below. For a malware developer though, it would make sense to have the exe launch a real pdf viewer as a sub process. Then, while it’s open, have the malware inject itself into the real pdf viewer using dll injection quietly.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/woops.png"></p>
+
+<p>On windows, I recommend right clicking on the file and viewing its properties to verify its file type before double clicking.</p>
+
+<p><img class="center" src="/images/spoofing-file-ext-resources/properties.png"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-01-15T13:06:02-05:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/" title="Previous Post: Writing a Linux Executable Using Only Echo">&laquo; Writing a Linux Executable Using Only Echo</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/02/01/dll-injection-on-windows-xp/" title="Next Post: Dll Injection on Windows XP">Dll Injection on Windows XP &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

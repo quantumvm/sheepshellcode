@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Dll Injection on Windows XP - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="Although sometimes it obvious when a computer’s integrity has been compromised by malware (addware, fakeAV, etc), other times it’s much less obvious &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2015/02/01/dll-injection-on-windows-xp/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">Dll Injection on Windows XP</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-02-01T19:29:34-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>Although sometimes it obvious when a computer’s integrity has been compromised by malware (addware, fakeAV, etc), other times it’s much less obvious. Some malware samples, like those designed to exfiltrate creditcard information/ user logins, can have their largest impact when the user doesn’t know they’ve been infected.</p>
+
+<p>To avoid detection malware will often rename itself to something harmless. One of the most recent malware sample I’ve analyzed, a sample from the Alina family of viruses, tried to rename its self winfax12.exe to try and avoid detection on point of sale machines.</p>
+
+<p>A more sophisticated method of persistence that doesn’t rely on social engineering is to have the malware sample inject itself into the memory of another actively running process. The most common way to do this on WindowsXP is through a process called DLL injection.
+Although there are variations on the process, malware will often take the following route to inject itself into a running process on WindowsXP</p>
+
+<ol>
+<li>Obtain a handle to the running process</li>
+<li>Allocate enough memory for the name of the dll to inject in the running process.</li>
+<li>Write the name of the dll to inject into the running process.</li>
+<li>Use Kernel32.dll to get hold of LoadLibraryA in the running process</li>
+<li>Create a new thread in the running process using CreateRemoteThread. The starting address of this thread is at LoadLibraryA and the name of the dll that was written into this process is passed as a parameter to LoadLibraryA.</li>
+</ol>
+
+
+<p>By reverse engineering a malware sample in IDA I’ve reconstructed similar program in C seen running in the video below. In the video, the game solitaire named sol.exe is injected with mydll.dll which triggers a windows message box.</p>
+
+<center>  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/JTDlu9Lt-cw" frameborder="0" allowfullscreen></iframe>
+</center>
+
+
+<p>For those new to translating programs in IDA from assembly to C, one of the hardest parts can be getting used to the fact the arguments are pushed onto the stack in reverse order.</p>
+
+<p><img class="center" src="/images/windows-dll-injection-resources/VirtualAlloc.png"></p>
+
+<p>In the picture above the function VirtualAllocEx is used to allocate enough memory into the running process so later the name of the dll to inject has a place to be written to. According to Microsoft’s documentation the prototype for VirtualAllocEX looks like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">LPVOID</span> <span class="n">WINAPI</span> <span class="nf">VirtualAllocEx</span><span class="p">(</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">HANDLE</span> <span class="n">hProcess</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_opt_</span>  <span class="n">LPVOID</span> <span class="n">lpAddress</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">SIZE_T</span> <span class="n">dwSize</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">DWORD</span> <span class="n">flAllocationType</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">_In_</span>      <span class="n">DWORD</span> <span class="n">flProtect</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Before actually reading the documentation this almost looks more cryptic than the assembly. It also doesn’t help that by default instead of displaying symbolic constants like PAGE_READWRITE and MEM_COMMIT as string values in the previous picture IDA will just list these as integers. By right clicking the integer values you can select what symbolic constant to replace them with in IDA.</p>
+
+<p>Actually reading Microsoft’s documentation, the rough equivalent of the excellent linux man pages, it  becomes clear that hProcess is a handle to the process to inject, lpAddress is a preferred starting location for the allocation, dwSize is the number of bytes to allocate, and flAllocationType/flProtect are one of the symbolic constants shown earlier.</p>
+
+<p>It would be tedious to explain every function but the rest of the program that actually does the injecting can be found on git here: <a href="https://github.com/quantumvm/InjectDll/blob/master/Source.c">https://github.com/quantumvm/InjectDll/blob/master/Source.c</a>
+The second half of this puzzle is how what to actually put into the dll that will be injected into the running process. Since Visual studio seems to like c++ a lot, it’s not fantastic for just c development, I wrote the actual dll in c++ instead of c.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">MessageBoxA</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">&quot;Hello world!&quot;</span><span class="p">,</span> <span class="s">&quot;hello world&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">return</span> <span class="n">TRUE</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When a dll is compiled its entry point is defined by the function DllMain. Visual studio provides most of the code you need for the dll already (The empty switch isn’t even necessary!) its very easy to append the functionally you want at the end of the DllMain function. The full dll I wrote for this project can be found here: <a href="https://github.com/quantumvm/InjectDll/blob/master/sample_dll/dllmain.cpp">https://github.com/quantumvm/InjectDll/blob/master/sample_dll/dllmain.cpp</a></p>
+
+<p>Before wrapping things up here are a few caveats:
+Although using the CreateRemoteThread method works fantastic in windows XP the method will fail in windows vista onward. The alternative is to use undocumented functions like NTCreateRemoteThread but this disadvantage is that the malware can only inject the dll into windowed programs using this function.</p>
+
+<p>When compiling the c program for Windows XP on VisualStudio 2012 onward you encounter a few small problems with backward compatibility specifically for the function OpenProcess. Between XP and vista the size of the flag PROCESS_ALL_ACCESS is actually changed so it’s necessary to tell the preprocessor that we want to support windows XP by including the following flag at the top of the program:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define _WIN32_WINNT _WIN32_WINNT_WINXP</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-02-01T19:29:34-05:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/malware/'>malware</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/01/15/spoofing-file-extensions/" title="Previous Post: Spoofing File Extensions">&laquo; Spoofing File Extensions</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/" title="Next Post: Writing Buffer Overflow Exploits With ASLR">Writing Buffer Overflow Exploits With ASLR &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

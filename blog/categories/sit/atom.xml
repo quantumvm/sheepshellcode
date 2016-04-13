@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: sit | Sheep Shellcode]]></title>
+  <link href="http://sheepshellcode.com/blog/categories/sit/atom.xml" rel="self"/>
+  <link href="http://sheepshellcode.com/"/>
+  <updated>2016-04-12T20:58:40-04:00</updated>
+  <id>http://sheepshellcode.com/</id>
+  <author>
+    <name><![CDATA[Vincent Moscatello]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[MMA CTF: Rock Paper SHELLCODE]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
+    <updated>2015-09-08T14:32:30-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
+    <content type="html"><![CDATA[<p>MMA CTF: Rock Paper SHELLCODE</p>
+
+<p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
+
+<p><img class="center" src="/images/rps/run-normal.png"></p>
+
+<p>The first challenge I solved was a 50 point pwnable called rps. The point of this challenge was to try and win 50 games of rock paper scissors against a remote service. They provided us with the binary for reverse engineering but not the text file that contains the flag.</p>
+
+<p>When you do the math it becomes very clear that brute forcing 50 games of rock paper scissors is not going to be feasible.  The probability of doing that successfully would be (1/3)<sup>50</sup>. Time to load the binary into IDA…</p>
+
+<p><img class="center" src="/images/rps/vulnerability.png"></p>
+
+<p>It was actually very easy to identify the vulnerability in this application. The program imports and makes a call to the vulnerable function gets. This results in an 80 byte stack based buffer overflow. The only part that gave me trouble was the actual exploitation.</p>
+
+<p>My first approach was to try and overwrite the saved rip and just point it to the victory condition found in the text segment (picture below).</p>
+
+<p><img class="center" src="/images/rps/victory.png"></p>
+
+<p>This was pretty easy to test out with about 5 lines of python.</p>
+
+<pre><code class="PYTHON">#!/usr/bin/python
+
+import struct
+
+rip = struct.pack("&lt;Q", 0x0000424242424242)
+rbp = struct.pack("&lt;Q", 0x4141414141414141)
+junk = "A"*80
+print junk+rbp+rip,
+</code></pre>
+
+<p><img class="center" src="/images/rps/overflow.png"></p>
+
+<p>After resolving some issues with canonical addressing, I was able to get control of rip. Unfortunately the location I was pointing rip into was not getting me the code execution I wanted. I actually have to go back and figure out why that was happening still. I came up with a different solution to the problem before spending more time on my old solution.</p>
+
+<p><img class="center" src="/images/rps/draw.png"></p>
+
+<p>Instead of overflowing rip I figured out that the seed which generated the choice of RPS was stored on the stack above where the user had to enter their name. Perfect! By overwriting the four bytes of entropy from /dev/random with AAAA it was possible to get the same sequence of rock paper scissors over and over again. From there we just shoved the solution through ncat.</p>
+
+<p><img class="center" src="/images/rps/pwned.png"></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Binary Patching]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/09/14/binary-patching/"/>
+    <updated>2014-09-14T01:53:36-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/09/14/binary-patching</id>
+    <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/juEDAMjNvOE" frameborder="0" allowfullscreen></iframe>
+</center>
+
+
+<p>I had a lot of fun at this weeks meeting! I gave a presentation on how to start patching binaries using the HT editor. I also gave a brief introduction to the structure of a linux executable.</p>
+
+<p>Hte hex editor that comes in the handy command line format. All you have to do is run <em>hte [program name]</em> and your popped in an ncurses environment where you can examine the executable in different modes.</p>
+
+<p>Check out <a href="/tutorials/RED-MOD/red-mod-0.pdf">RED MOD 0</a> for the written tutorial!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First SIT Meeting 2014]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting/"/>
+    <updated>2014-09-14T01:14:27-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting</id>
+    <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/s3k5UXFt4qw" frameborder="0" allowfullscreen></iframe>
+</center>
+
+
+<p>I was absolutely thrilled to introduce a new group of <strong>ninjas</strong> to the first Student Infosec Team meeting of 2014. This meeting took place in CSE 312 (capable of holding 30 bodies)  and the room filled slightly beyond its capacity.</p>
+
+<p>For the first time ever we decided to film meetings and put them on YouTube. I was quite impressed by the quality. Our setup consisted of an HD webcam and an internal microphone.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>TV 20 Interview - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="Now that finals are over its time to update the website with all the things! I forgot to write about it earlier but on November 21st I had the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2014/12/27/tv-20-interview/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">TV 20 Interview</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2014-12-27T12:27:58-05:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>Now that finals are over its time to update the website with all the things! I forgot to write about it earlier but on November 21st I had the oppurtunity to do an interview with TV-20 correspondent Emily Burris on <strong>The Dangers of Public Wifi</strong></p>
+
+<p>The segement came together extremely well! You can watch the entire interview here: <a href="http://www.wcjb.com/morning-edition-technology-local-news/2014/11/dangers-free-wifi-your-personal-information-risk">http://www.wcjb.com/morning-edition-technology-local-news/2014/11/dangers-free-wifi-your-personal-information-risk</a></p>
+
+<p>I decided to prepare three demos since I thought they would work well for the segment.</p>
+
+<ol>
+<li><p><strong>Man in the middle attack:</strong> for this demo I setup ssl-strip and used arpspoof from kali to illistrate a simple arp-spoofing attack. I actually had a little bit of trouble with this one since the old windows xp virtualmachine I was using refused to connect to pages that normally used https. The porblem had to do with the recent poodle downgrade attack. Facebook dropped support for IE6 so the solution was to just update the browser</p></li>
+<li><p><strong>Vulnerable Services:</strong> for this demo I just disabled windows firewall on my XP box, fired up metasploit, and exploited ms08_067 everything went smoothly here. I used a meterpreter shell as the payload.</p></li>
+<li><p><strong>Rogue wifi access point:</strong> This one was acutally pretty new to me since it wasn&rsquo;t something I&rsquo;ve tried before. I used airbase-ng and set the SSID of the wifi accesspoint to (Evil Wireless)</p></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2014-12-27T12:27:58-05:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/13/lets-play-with-visual-studio-hashmap/" title="Previous Post: Lets Play with Visual Studio: Hashmap">&laquo; Lets Play with Visual Studio: Hashmap</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/" title="Next Post: Writing a Linux Executable Using Only Echo">Writing a Linux Executable Using Only Echo &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

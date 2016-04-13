@@ -1,0 +1,280 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>MMA CTF: Rock Paper SHELLCODE - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="MMA CTF: Rock Paper SHELLCODE I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">MMA CTF: Rock Paper SHELLCODE</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-08T14:32:30-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>MMA CTF: Rock Paper SHELLCODE</p>
+
+<p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
+
+<p><img class="center" src="/images/rps/run-normal.png"></p>
+
+<p>The first challenge I solved was a 50 point pwnable called rps. The point of this challenge was to try and win 50 games of rock paper scissors against a remote service. They provided us with the binary for reverse engineering but not the text file that contains the flag.</p>
+
+<p>When you do the math it becomes very clear that brute forcing 50 games of rock paper scissors is not going to be feasible.  The probability of doing that successfully would be (1/3)<sup>50</sup>. Time to load the binary into IDA…</p>
+
+<p><img class="center" src="/images/rps/vulnerability.png"></p>
+
+<p>It was actually very easy to identify the vulnerability in this application. The program imports and makes a call to the vulnerable function gets. This results in an 80 byte stack based buffer overflow. The only part that gave me trouble was the actual exploitation.</p>
+
+<p>My first approach was to try and overwrite the saved rip and just point it to the victory condition found in the text segment (picture below).</p>
+
+<p><img class="center" src="/images/rps/victory.png"></p>
+
+<p>This was pretty easy to test out with about 5 lines of python.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='PYTHON'><span class='line'><span class="c">#!/usr/bin/python</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">struct</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">rip</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="mh">0x0000424242424242</span><span class="p">)</span>
+</span><span class='line'><span class="n">rbp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="mh">0x4141414141414141</span><span class="p">)</span>
+</span><span class='line'><span class="n">junk</span> <span class="o">=</span> <span class="s">&quot;A&quot;</span><span class="o">*</span><span class="mi">80</span>
+</span><span class='line'><span class="k">print</span> <span class="n">junk</span><span class="o">+</span><span class="n">rbp</span><span class="o">+</span><span class="n">rip</span><span class="p">,</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><img class="center" src="/images/rps/overflow.png"></p>
+
+<p>After resolving some issues with canonical addressing, I was able to get control of rip. Unfortunately the location I was pointing rip into was not getting me the code execution I wanted. I actually have to go back and figure out why that was happening still. I came up with a different solution to the problem before spending more time on my old solution.</p>
+
+<p><img class="center" src="/images/rps/draw.png"></p>
+
+<p>Instead of overflowing rip I figured out that the seed which generated the choice of RPS was stored on the stack above where the user had to enter their name. Perfect! By overwriting the four bytes of entropy from /dev/random with AAAA it was possible to get the same sequence of rock paper scissors over and over again. From there we just shoved the solution through ncat.</p>
+
+<p><img class="center" src="/images/rps/pwned.png"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-09-08T14:32:30-04:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ctf/'>ctf</a>, <a class='category' href='/blog/categories/sit/'>sit</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/02/a-tiny-easy-ctf-challenge/" title="Previous Post: A Tiny Easy CTF Challenge">&laquo; A Tiny Easy CTF Challenge</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/09/21/an-american-fuzzylop-environment/" title="Next Post: An American Fuzzylop Environment">An American Fuzzylop Environment &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

